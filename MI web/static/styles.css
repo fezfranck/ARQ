@@ -1,43 +1,101 @@
+/* Estilos generales */
 body {
     font-family: 'Open Sans', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
+    background: linear-gradient(135deg, #f0f0f0, #d6d6d6);  /* Fondo degradado de gris claro a gris más oscuro */
+    color: #333;  /* Texto gris oscuro */
+    display: flex;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
 }
 
+/* Menú de navegación vertical */
+.vertical-menu {
+    width: 180px;  /* Reducido el ancho de la barra de navegación */
+    background: linear-gradient(180deg, #343434, #b5b5b5, #343434);  /* Degradado metálico */
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;  /* Ocupa toda la altura de la página */
+    display: flex;
+    justify-content: flex-start;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);  /* Sombra moderna a la derecha */
+    padding-top: 20px;
+}
+
+.vertical-menu ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.vertical-menu ul li {
+    margin: 10px 0;  /* Espaciado reducido entre los elementos */
+}
+
+/* Enlaces del menú con efectos dinámicos */
+.vertical-menu ul li a {
+    text-decoration: none;
+    color: white;  /* Texto blanco */
+    font-weight: bold;
+    padding: 12px;
+    display: block;
+    background-color: transparent;  /* Fondo transparente inicialmente */
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    border-radius: 8px;  /* Bordes redondeados */
+    text-align: left;  /* Alineación a la izquierda para justificar el texto */
+    padding-left: 20px;  /* Espaciado para la justificación del texto */
+}
+
+/* Efecto hover con movimiento, sombra y cambio de color */
+.vertical-menu ul li a:hover {
+    background-color: #555;  /* Color gris intermedio cuando se coloca el mouse */
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);  /* Sombra al pasar el mouse */
+    transform: translateX(10px);  /* Mueve el texto ligeramente a la derecha */
+    border-radius: 8px;  /* Mantiene bordes redondeados */
+}
+
+/* Contenido principal */
+.main-content {
+    margin-left: 200px;  /* Ajustado el margen para el menú más estrecho */
+    padding: 40px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: justify;
+    max-width: 900px;
+    background: white;  /* Fondo blanco para mayor contraste */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);  /* Sombra suave en el contenido */
+    border-radius: 12px;  /* Bordes redondeados */
+}
+
+/* Estilos del encabezado */
 header {
     text-align: center;
-    padding: 20px;
+    padding: 30px;
 }
 
 .profile-img {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;  /* Imagen redonda */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);  /* Sombra moderna en la imagen */
 }
 
-nav ul {
-    display: flex;
-    justify-content: center;
-    list-style-type: none;
-    padding: 0;
-}
-
-nav ul li {
-    margin: 0 15px;
-}
-
-nav ul li a {
-    text-decoration: none;
-    color: #333;
-    font-weight: bold;
-}
-
+/* Estilos para el texto dentro del contenido */
 section {
-    padding: 20px;
-    text-align: center;
+    padding: 30px;
+    text-align: justify;
+    line-height: 1.8;
 }
 
+/* Estilos para el pie de página */
 footer {
     text-align: center;
     padding: 10px;
@@ -46,4 +104,35 @@ footer {
     position: fixed;
     bottom: 0;
     width: 100%;
+}
+
+/* Estilos responsivos para pantallas pequeñas */
+@media screen and (max-width: 768px) {
+    .vertical-menu {
+        width: 150px;  /* Ajuste responsivo para pantallas más pequeñas */
+    }
+
+    .main-content {
+        margin-left: 170px;
+        padding: 20px;
+    }
+
+    header h1 {
+        font-size: 28px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .vertical-menu {
+        width: 130px;  /* Ajuste responsivo para pantallas más pequeñas */
+    }
+
+    .main-content {
+        margin-left: 140px;
+        padding: 15px;
+    }
+
+    header h1 {
+        font-size: 24px;
+    }
 }

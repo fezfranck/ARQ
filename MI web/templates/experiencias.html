@@ -3,8 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Educación - Francisco Esparza</title>
+    <title>Experiencias - Francisco Esparza</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        /* Estilos generales del cuerpo */
+        body {
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f0f0f0, #d6d6d6);  /* Fondo degradado de gris claro a gris más oscuro */
+            color: #333;  /* Texto gris oscuro */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Menú de navegación con degradado metálico */
+        nav {
+            width: 180px;  /* Ancho reducido */
+            background: linear-gradient(180deg, #5a5a5a, #b5b5b5, #5a5a5a);  /* Degradado metálico */
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;  /* Ocupa toda la altura */
+            display: flex;
+            justify-content: flex-start;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);  /* Sombra moderna */
+            padding-top: 20px;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+
+        nav ul li {
+            margin: 10px 0;  /* Espaciado reducido */
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: white;  /* Texto blanco */
+            font-weight: bold;
+            padding: 12px;
+            display: block;
+            background-color: transparent;  /* Fondo transparente inicialmente */
+            transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            border-radius: 8px;
+            text-align: left;  /* Alineación a la izquierda */
+            padding-left: 20px;  /* Espaciado para justificar el texto */
+        }
+
+        /* Efecto hover en los enlaces */
+        nav ul li a:hover {
+            background-color: #555;  /* Color gris intermedio */
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);  /* Sombra */
+            transform: translateX(10px);  /* Mueve ligeramente a la derecha */
+            border-radius: 8px;
+        }
+
+        /* Ajuste del contenido principal */
+        section {
+            margin-left: 200px;  /* Margen para el menú más estrecho */
+            padding: 40px;
+            flex-grow: 1;
+            background: white;  /* Fondo blanco para contraste */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);  /* Sombra suave */
+            border-radius: 12px;  /* Bordes redondeados */
+            max-width: 1000px;  /* Ancho máximo para el contenido */
+            margin-top: 40px;  /* Separación del contenido hacia abajo */
+        }
+
+        /* Estilos básicos para la presentación de la información */
+        .experience-section {
+            display: flex;
+            margin-bottom: 20px;
+            align-items: flex-start; /* Asegura que las imágenes y textos se alineen correctamente */
+        }
+
+        .experience-section img {
+            max-width: 200px;
+            margin-right: 20px;
+            border-radius: 8px;
+        }
+
+        /* Estilos uniformes para el texto */
+        .experience-section p {
+            font-size: 1.1em; /* Aumenta un poco el tamaño de la fuente para mejorar la legibilidad */
+            line-height: 1.6; /* Aumenta el espaciado entre líneas */
+            text-align: justify; /* Justifica el texto para darle un aspecto uniforme en los márgenes */
+            color: #333; /* Color de texto más suave para facilitar la lectura */
+            margin: 0; /* Asegura que no haya márgenes adicionales alrededor del texto */
+            max-width: 800px; /* Limita el ancho máximo del texto para mejorar la legibilidad */
+        }
+
+        .experience-section strong {
+            color: #007BFF; /* Resalta el texto fuerte (strong) con un color azul */
+        }
+
+        /* Menú de descarga */
+        .downloads-section {
+            margin-top: 30px;
+        }
+
+        .downloads-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .downloads-section li {
+            margin-bottom: 10px;
+        }
+
+        .downloads-section a {
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+        }
+
+        .downloads-section a:hover {
+            text-decoration: underline;
+        }
+
+        /* Pie de página */
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        /* Estilo para ajustar mejor la visualización en pantallas pequeñas */
+        @media (max-width: 768px) {
+            nav {
+                width: 150px;
+            }
+
+            section {
+                margin-left: 170px;
+                padding: 20px;
+            }
+
+            .experience-section {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .experience-section img {
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            nav {
+                width: 130px;
+            }
+
+            section {
+                margin-left: 140px;
+                padding: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -22,8 +188,55 @@
     </nav>
 
     <section>
-        <p>Licenciatura en Ciencia Política en la Universidad Nacional del Litoral.</p>
-        <!-- Agrega más información sobre educación -->
+        <!-- Experiencia 1 -->
+        <div class="experience-section">
+            <img src="{{ url_for('static', filename='images/senado_nacional01.jpg') }}" alt="Senado Nacional">
+            <p>Mi experiencia en el Honorable Senado de la Nación Argentina me permitió aprender sobre las funciones en el área legislativa. A través de esta experiencia, participé en la redacción y análisis de proyectos de ley, además de asistir a comisiones parlamentarias en un entorno de constante interacción con funcionarios y legisladores.<br>
+            <strong>Duración:</strong> 2021 - 2023</p>
+        </div>
+         <!-- Experiencia 5 -->
+         <div class="experience-section">
+            <img src="{{ url_for('static', filename='images/congresoabogacia.jpeg') }}" alt="Gestión Cultural">
+            <p>Durante el año 2023, participé en la XX Conferencia Nacional de la Abogacía, organizada por la Federación Argentina de Colegios de Abogadas y Abogados. Mi participación fue junto al Dr. Juan Manuel Fernández, con quien presentamos nuestro trabajo de investigación, que consiste en un proyecto de ley que propone la creación de un nuevo régimen para deudores particulares..<br>
+            <strong>Duración:</strong> 2023</p>
+        </div>
+        <!-- Experiencia 2 -->
+        <div class="experience-section">
+            <img src="{{ url_for('static', filename='images/MolinoFC.jpg') }}" alt="Voluntariado Social">
+            <p>He tenido la oportunidad en el año 2019 de trabajar en el Molino Fábrica Cultural, un lugar emblemático de la ciudad. Gracias al programa provincial de Residencias Culturales desarrolado por el Miniterio de Innovación y Cultura de la Provincia de Santa Fe. Me encargué de coordinar actividades públicas, atender al público y trabajar en equipo para llevar adelante diversos eventos culturales. Bajo la conducción de la Ministra María de los Ángeles González, pude aprender mucho sobre la gestión y organización de proyectos culturales.<br>
+            <strong>Duración:</strong> 2019 - 2021</p>
+        </div>
+           <!-- Experiencia 5 -->
+        <div class="experience-section">
+            <img src="{{ url_for('static', filename='images/UNLcongresos.jpg') }}" alt="Gestión Cultural">
+            <p>Desde mi ingreso en 2018 hasta la actualidad, he participado en diversas instancias académicas de la Universidad Nacional del Litoral, tales como las Jornadas de Ciencia Política del Litoral, el I Congreso Internacional de Comunicación Política, el I Congreso de Derecho Internacional y las Jornadas de Debate de Políticas Públicas de Género. En las Jornadas de Ciencia Política del Litoral, participé como expositor, donde presenté dos trabajos de investigación..<br>
+            <strong>Duración:</strong> 2018 - 2023</p>
+        </div>
+
+        <!-- Experiencia 3 -->
+        <div class="experience-section">
+            <img src="{{ url_for('static', filename='images/Pasantia01.webp') }}" alt="Gestión Cultural">
+            <p>En mi último año de secundaria, realicé una pasantía en la Secretaría de Cultura de Laguna Paiva, donde participé en la creación de una base de datos de artistas locales, contribuyendo a la organización y promoción del talento de la comunidad..<br>
+            <strong>Duración:</strong> 2016 </p>
+        </div>
+
+         <!-- Experiencia 4 -->
+         <div class="experience-section">
+            <img src="{{ url_for('static', filename='images/Pasantia02.jpg') }}" alt="Gestión Cultural">
+            <p>En mi último año de secundaria, también realice una pasantia como instructor informático en el jardín N° 96 Ing. León Lasalle, brindando apoyo en el uso de herramientas tecnológicas a niños de 5 años, facilitando su aprendizaje y desarrollo digital.<br>
+            <strong>Duración:</strong> 2016 </p>
+        </div>
+        <!-- Sección de descargas -->
+        <div class="downloads-section">
+            <h2>Artículos Académicos y Proyectos de Congresos</h2>
+            <ul>
+                <li><a href="{{ url_for('static', filename='files/XX Conferencia Nacional de la Abogacia de la FACA.pdf') }}" download>Trabajo de investigacion: "XX Conferencia Nacional de la Abogacia de la FACA."</a></li>
+                <li><a href="{{ url_for('static', filename='files/Moralidad como concepto delimitador y exclusor en los discursos de Javier Milei, 6ta Jornada de Ciencia Politica Santiago Cignetti y Francisco Esparza.pdf') }}" download>Trabajo de investigacion: "Moralidad como concepto delimitador y exclusor en los discursos de Javier Milei, 6ta Jornada de Ciencia Politica Santiago Cignetti y Francisco Esparza"</a></li>
+                <li><a href="{{ url_for('static', filename='files/Violencias en plural la respuesta de la oposición frente al intento de magnicidio de Cristina Fernandez.pdf') }}" download>Trabajo de investigacion: "Violencias en plural: la respuesta de la oposición frente al intento de magnicidio de
+                    Cristina Fernandez. 6ta Jornada de Ciencia Politica Martina Trossero y Francisco Esparza"</a></li>
+                <li><a href="{{ url_for('static', filename='files/proyecto_2.pdf') }}" download>Proyecto de Congreso: "Innovación y Legislación: El Futuro del Derecho"</a></li>
+            </ul>
+        </div>
     </section>
 
     <footer>
