@@ -197,6 +197,28 @@ footer p {
 section {
     padding: 80px 0;
 }
+.about-us {
+    padding: 40px 0;
+}
+
+.about-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.about-text {
+    flex: 1;
+    padding-right: 20px;
+    text-align: left; /* Alinea el texto a la izquierda */
+}
+
+.about-image img {
+    width: 300px; /* Ajusta el tamaño de la imagen según sea necesario */
+    height: auto;
+    border-radius: 50%; /* Esto le dará una forma circular a la imagen */
+}
+
 
 #sobre-nosotros {
     background-color: #FFF;
