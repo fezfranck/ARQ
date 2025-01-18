@@ -327,3 +327,56 @@ section {
         transform: translateY(0);
     }
 }
+
+/* Media Queries para Pantallas Pequeñas */
+@media (max-width: 768px) {
+    nav ul {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    nav ul li {
+        margin: 10px 0;
+    }
+
+    .hero h1 {
+        font-size: 40px;
+    }
+
+    .hero p {
+        font-size: 16px;
+    }
+
+    .contact-form {
+        padding: 20px;
+        margin: 30px auto;
+    }
+
+    .btn-cta {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    #proyectos h2,
+    #sobre-nosotros h2,
+    #servicios h2 {
+        font-size: 28px;
+    }
+
+    .proyectos-galeria {
+        flex-direction: column;
+    }
+
+    .proyecto {
+        width: 100%;
+    }
+
+    .galeria-servicios {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .servicio {
+        width: 100%;
+    }
+}
