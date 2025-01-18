@@ -201,23 +201,34 @@ section {
     padding: 40px 0;
 }
 
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .about-content {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: center; /* Centra el contenido horizontalmente */
+    align-items: center;     /* Alinea el contenido verticalmente */
+    max-width: 1200px;       /* Define el ancho máximo del contenedor */
+    margin: 0 auto;          /* Centra el contenedor en la página */
 }
 
 .about-text {
     flex: 1;
     padding-right: 20px;
-    text-align: left; /* Alinea el texto a la izquierda */
+    text-align: justify;      /* Justifica el texto */
+    max-width: 600px;         /* Define un ancho máximo para el texto */
 }
 
 .about-image img {
-    width: 300px; /* Ajusta el tamaño de la imagen según sea necesario */
+    width: 300px;             /* Ajusta el tamaño de la imagen */
     height: auto;
-    border-radius: 50%; /* Esto le dará una forma circular a la imagen */
+    border-radius: 50%;       /* Hace la imagen circular */
+    margin-left: 20px;        /* Espacio entre el texto y la imagen */
 }
+
 
 
 #sobre-nosotros {
