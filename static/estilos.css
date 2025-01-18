@@ -163,7 +163,6 @@ footer p {
     text-shadow: 2px 2px 5px #000000; /* Sombreado en negro */
 }
 
-
 .hero p {
     font-size: 20px;
     margin-bottom: 40px;
@@ -197,6 +196,7 @@ footer p {
 section {
     padding: 80px 0;
 }
+
 .about-us {
     padding: 40px 0;
 }
@@ -250,7 +250,6 @@ section {
 }
 
 /* Responsividad */
-
 @media (max-width: 768px) {
     nav ul {
         flex-direction: column;
@@ -295,5 +294,24 @@ section {
 
     .proyecto {
         width: 100%;
+    }
+
+    /* Ajustes para la Galería de Servicios */
+    .galeria-servicios {
+        display: flex;
+        flex-wrap: wrap; /* Permite que las imágenes se ajusten en varias líneas */
+        justify-content: center; /* Centra las imágenes */
+    }
+
+    .servicio {
+        width: 100%; /* Hace que cada imagen ocupe todo el ancho disponible */
+        max-width: 100%; /* Limita el ancho máximo a 100% */
+        margin-bottom: 20px; /* Añade separación entre las imágenes */
+    }
+
+    .servicio img {
+        width: 100%; /* Asegura que la imagen ocupe el 100% del contenedor */
+        height: auto; /* Mantiene la proporción original de la imagen */
+        object-fit: cover; /* Evita que la imagen se deforme */
     }
 }
