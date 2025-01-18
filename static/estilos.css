@@ -159,7 +159,8 @@ footer p {
     letter-spacing: 1px;
     animation: fadeInDown 1.5s ease;
     z-index: 1;
-    color: #000;
+    color: #808080; /* Letras en gris */
+    text-shadow: 2px 2px 5px #FFFFFF; /* Sombreado blanco */
 }
 
 .hero p {
