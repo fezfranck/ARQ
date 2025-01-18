@@ -159,8 +159,8 @@ footer p {
     letter-spacing: 1px;
     animation: fadeInDown 1.5s ease;
     z-index: 1;
-    color: #000000; /* Letras en negro */
-    text-shadow: 2px 2px 5px #505050; /* Sombreado gris semioscuro */
+    color: #FFFFFF; /* Letras en blanco */
+    text-shadow: 2px 2px 5px #000000; /* Sombreado en negro */
 }
 
 
