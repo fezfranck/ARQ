@@ -1117,104 +1117,98 @@
   });
 </script>
 
-  <footer>
-    <div class="footer-content">
-      <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Estudio Anabella Zalazar</h3>
-      <p style="margin-bottom: 1rem;">Síguenos en nuestras redes sociales</p>
-      <div class="redes-sociales">
-        <a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">
-          <img src="static/img/facebook.svg" alt="Facebook" onerror="this.parentElement.innerHTML='📘'">
-        </a>
-        <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">
-          <img src="static/img/instagram.svg" alt="Instagram" onerror="this.parentElement.innerHTML='📷'">
-        </a>
-        <a href="https://www.twitter.com/" target="_blank" rel="noopener" aria-label="Twitter">
-          <img src="static/img/twitter.svg" alt="Twitter" onerror="this.parentElement.innerHTML='🐦'">
-        </a>
-      </div>
-      <p>&copy; 2024 Estudio de Arquitectura Anabella Zalazar. Todos los derechos reservados.</p>
+<footer>
+  <div class="footer-content">
+    <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Estudio Anabella Zalazar</h3>
+    <p style="margin-bottom: 1rem;">Síguenos en nuestras redes sociales</p>
+    <div class="redes-sociales">
+      <a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">
+        <img src="static/img/facebook.svg" alt="Facebook" onerror="this.parentElement.innerHTML='📘'">
+      </a>
+      <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">
+        <img src="static/img/instagram.svg" alt="Instagram" onerror="this.parentElement.innerHTML='📷'">
+      </a>
+      <a href="https://www.twitter.com/" target="_blank" rel="noopener" aria-label="Twitter">
+        <img src="static/img/twitter.svg" alt="Twitter" onerror="this.parentElement.innerHTML='🐦'">
+      </a>
     </div>
-  </footer>
+    <p>&copy; 2024 Estudio de Arquitectura Anabella Zalazar. Todos los derechos reservados.</p>
+  </div>
+</footer>
 
-  <script>
-    // Menu toggle para móvil
-    const menuToggle = document.getElementById('menuToggle');
-    const navMenu = document.getElementById('navMenu');
-    
-    menuToggle.addEventListener('click', () => {
-      menuToggle.classList.toggle('active');
-      navMenu.classList.toggle('active');
+<script>
+  // Menu toggle para móvil
+  const menuToggle = document.getElementById('menuToggle');
+  const navMenu = document.getElementById('navMenu');
+  
+  menuToggle.addEventListener('click', () => {
+    menuToggle.classList.toggle('active');
+    navMenu.classList.toggle('active');
+  });
+
+  // Cerrar menú al hacer click en un enlace
+  document.querySelectorAll('#navMenu a').forEach(link => {
+    link.addEventListener('click', () => {
+      menuToggle.classList.remove('active');
+      navMenu.classList.remove('active');
     });
+  });
 
-    // Cerrar menú al hacer click en un enlace
-    document.querySelectorAll('#navMenu a').forEach(link => {
-      link.addEventListener('click', () => {
-        menuToggle.classList.remove('active');
-        navMenu.classList.remove('active');
-      });
-    });
+  // Header scroll effect
+  const header = document.getElementById('header');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+  });
 
-    // Header scroll effect
-    const header = document.getElementById('header');
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 50) {
-        header.classList.add('scrolled');
-      } else {
-        header.classList.remove('scrolled');
+  // Intersection Observer para animaciones
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -100px 0px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
       }
     });
+  }, observerOptions);
 
-    // Intersection Observer para animaciones
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -100px 0px'
-    };
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    }, observerOptions);
-
-    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-
-    // Smooth scroll para los enlaces de navegación
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          const headerOffset = 80;
-          const elementPosition = target.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-          });
-        }
-      });
-    });
-
-    // Focus states para inputs
-    document.querySelectorAll('input, textarea').forEach(input => {
-      input.addEventListener('focus', function() {
-        this.style.borderColor = 'var(--primary)';
-        this.style.outline = 'none';
-      });
-      input.addEventListener('blur', function() {
-        this.style.borderColor = '#e0e0e0';
-      });
-    });
-
-    // Prevenir envío del formulario (ya que es estático)
-    document.querySelector('form').addEventListener('submit', function(e) {
+  // Smooth scroll para los enlaces de navegación
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
       e.preventDefault();
-      alert('¡Gracias por tu mensaje! Te contactaremos pronto.\n\nNota: RECUERDA SEGUIRNOS EN REDES, SALUDOS!.');
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        const headerOffset = 80;
+        const elementPosition = target.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
     });
-  </script>
+  });
+
+  // Focus states para inputs
+  document.querySelectorAll('input, textarea').forEach(input => {
+    input.addEventListener('focus', function() {
+      this.style.borderColor = 'var(--primary)';
+      this.style.outline = 'none';
+    });
+    input.addEventListener('blur', function() {
+      this.style.borderColor = '#e0e0e0';
+    });
+  });
+</script>
 </body>
 </html>
 
