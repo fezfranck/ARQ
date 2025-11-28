@@ -1042,17 +1042,16 @@
       </div>
     </div>
   </section>
-
-  <section id="contacto">
+<section id="contacto">
   <div class="section-header fade-in">
     <h2>Conversemos tu Proyecto</h2>
     <p>Estamos listos para hacer realidad tus ideas</p>
   </div>
   <div class="contact-form fade-in">
-    <div id="mensajeExito" style="display: none; padding: 1rem; background: #4CAF50; color: white; border-radius: 10px; margin-bottom: 1rem; text-align: center;">
-      ¡Mensaje enviado con éxito! Te contactaremos pronto.
+    <div id="mensajeExito" style="display: none; padding: 1rem; background: #4CAF50; color: white; border-radius: 10px; margin-bottom: 1rem; text-align: center; animation: fadeIn 0.5s;">
+      ¡Mensaje enviado con éxito! Te contactaremos pronto. ✓
     </div>
-    <form id="contactForm" action="https://formspree.io/f/xwpdaaaj" method="POST">
+    <form id="contactForm" action="https://formspree.io/f/xyzqlvjv" method="POST">
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
         <div>
           <label for="nombre" style="display: block; margin-bottom: 0.5rem; color: var(--dark); font-weight: 500;">Nombre</label>
@@ -1082,6 +1081,11 @@
     
     const form = e.target;
     const data = new FormData(form);
+    const button = form.querySelector('button[type="submit"]');
+    const buttonText = button.textContent;
+    
+    button.disabled = true;
+    button.textContent = 'Enviando...';
     
     fetch(form.action, {
       method: 'POST',
@@ -1092,20 +1096,27 @@
     })
     .then(response => {
       if (response.ok) {
-        form.reset(); // Limpia todos los campos
+        form.reset();
         document.getElementById('mensajeExito').style.display = 'block';
+        document.getElementById('mensajeExito').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         setTimeout(() => {
           document.getElementById('mensajeExito').style.display = 'none';
-        }, 5000); // Oculta el mensaje después de 5 segundos
+        }, 5000);
       } else {
         alert('Hubo un problema al enviar el mensaje. Por favor, intenta nuevamente.');
       }
     })
     .catch(error => {
       alert('Error al enviar el mensaje. Verifica tu conexión e intenta nuevamente.');
+      console.error('Error:', error);
+    })
+    .finally(() => {
+      button.disabled = false;
+      button.textContent = buttonText;
     });
   });
 </script>
+
   <footer>
     <div class="footer-content">
       <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Estudio Anabella Zalazar</h3>
@@ -1201,11 +1212,12 @@
     // Prevenir envío del formulario (ya que es estático)
     document.querySelector('form').addEventListener('submit', function(e) {
       e.preventDefault();
-      alert('¡Gracias por tu mensaje! Te contactaremos pronto.\n\nNota: Este es un formulario de demostración. Para hacerlo funcional, necesitarás implementar un backend o servicio de email.');
+      alert('¡Gracias por tu mensaje! Te contactaremos pronto.\n\nNota: RECUERDA SEGUIRNOS EN REDES, SALUDOS!.');
     });
   </script>
 </body>
 </html>
+
 
 
 
