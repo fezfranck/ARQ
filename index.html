@@ -27,13 +27,13 @@
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--light);
+      background-color: var(--light);
       color: var(--dark);
       line-height: 1.6;
       overflow-x: hidden;
     }
 
-    /* HEADER */
+    /* HEADER MODERNO CON GLASSMORPHISM */
     header {
       position: fixed;
       top: 0;
@@ -74,7 +74,7 @@
       gap: 2.5rem;
     }
 
-    nav a {
+    nav ul li a {
       color: var(--white);
       text-decoration: none;
       font-size: 0.95rem;
@@ -84,7 +84,7 @@
       transition: color 0.3s ease;
     }
 
-    nav a::after {
+    nav ul li a::after {
       content: '';
       position: absolute;
       bottom: -5px;
@@ -95,11 +95,11 @@
       transition: width 0.3s ease;
     }
 
-    nav a:hover {
+    nav ul li a:hover {
       color: var(--primary);
     }
 
-    nav a:hover::after {
+    nav ul li a:hover::after {
       width: 100%;
     }
 
@@ -119,9 +119,10 @@
       border-radius: 2px;
     }
 
-    /* HERO */
+    /* HERO SECTION CON PARALLAX */
     .hero {
       min-height: 100vh;
+      height: auto;
       background: url('static/img/fondo-arquitectura.png') no-repeat center center/cover;
       display: flex;
       flex-direction: column;
@@ -130,20 +131,31 @@
       text-align: center;
       color: var(--white);
       position: relative;
+      overflow: hidden;
       padding: 120px 2rem 80px;
     }
 
     .hero::before {
       content: '';
       position: absolute;
-      inset: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: rgba(0, 0, 0, 0.5);
+      z-index: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
     }
 
     .hero-content {
       position: relative;
       z-index: 1;
       max-width: 900px;
+      padding: 2rem;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -157,20 +169,24 @@
       margin-bottom: 1rem;
       animation: fadeInDown 1s ease;
       filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+      object-fit: contain;
     }
 
     .hero h1 {
       font-size: clamp(3rem, 8vw, 6rem);
+      margin-bottom: 1.5rem;
       font-weight: 800;
       letter-spacing: -2px;
       animation: fadeInUp 1s ease 0.2s both;
       text-shadow: 2px 2px 20px rgba(0, 0, 0, 0.5);
       line-height: 1.1;
+      width: 100%;
+      max-width: 1200px;
     }
 
     .hero p {
       font-size: clamp(1.1rem, 2vw, 1.5rem);
-      margin-bottom: 2rem;
+      margin-bottom: 3rem;
       opacity: 0.9;
       animation: fadeInUp 1s ease 0.4s both;
       font-weight: 300;
@@ -191,8 +207,8 @@
       box-shadow: 0 10px 30px rgba(228, 87, 46, 0.4);
       position: relative;
       overflow: hidden;
-      border: none;
-      cursor: pointer;
+      text-transform: none;
+      margin-top: 1rem;
     }
 
     .btn-cta::before {
@@ -219,17 +235,24 @@
     .scroll-indicator {
       position: absolute;
       bottom: 3rem;
+      left: 50%;
+      transform: translateX(-50%);
       animation: bounce 2s infinite;
       z-index: 10;
+    }
+
+    .scroll-indicator::after {
+      content: '↓';
       font-size: 2.5rem;
       color: var(--white);
       opacity: 0.8;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     }
 
     @keyframes bounce {
-      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-      40% { transform: translateY(-10px); }
-      60% { transform: translateY(-5px); }
+      0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+      40% { transform: translateX(-50%) translateY(-10px); }
+      60% { transform: translateX(-50%) translateY(-5px); }
     }
 
     /* SECCIONES */
@@ -249,6 +272,7 @@
       font-weight: 800;
       margin-bottom: 1rem;
       letter-spacing: -1px;
+      color: var(--dark);
       position: relative;
       display: inline-block;
     }
@@ -272,7 +296,7 @@
       margin: 1.5rem auto 0;
     }
 
-    /* SOBRE NOSOTROS - Diseño del segundo archivo */
+    /* SOBRE NOSOTROS */
     .about-content {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -322,16 +346,14 @@
       z-index: -1;
     }
 
-    /* CARDS GENERALES */
-    .proyectos-grid,
-    .servicios-grid,
-    .ventas-grid {
+    /* PROYECTOS GRID MODERNO */
+    .proyectos-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
       gap: 2rem;
     }
 
-    .card {
+    .proyecto-card {
       background: var(--white);
       border-radius: 20px;
       overflow: hidden;
@@ -340,51 +362,60 @@
       cursor: pointer;
     }
 
-    .card:hover {
+    .proyecto-card:hover {
       transform: translateY(-10px);
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
     }
 
-    .card-image {
+    .proyecto-image {
       width: 100%;
       height: 300px;
       overflow: hidden;
       position: relative;
     }
 
-    .servicio-card .card-image {
-      height: 200px;
-    }
-
-    .card-image img {
+    .proyecto-image img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       transition: transform 0.5s ease;
     }
 
-    .card:hover .card-image img {
+    .proyecto-card:hover .proyecto-image img {
       transform: scale(1.1);
     }
 
-    .card-info {
+    .proyecto-info {
       padding: 1.5rem;
     }
 
-    .card-info h3 {
+    .proyecto-info h3 {
       font-size: 1.5rem;
       margin-bottom: 0.5rem;
+      color: var(--dark);
     }
 
-    .card-info p {
+    .proyecto-info p {
       color: var(--gray);
       font-size: 0.95rem;
-      line-height: 1.6;
     }
 
-    /* SERVICIOS */
+    /* SERVICIOS CON ICONOS */
+    .servicios-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
     .servicio-card {
+      background: var(--white);
+      padding: 0;
+      border-radius: 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 20px var(--shadow);
       position: relative;
+      overflow: hidden;
     }
 
     .servicio-card::before {
@@ -397,26 +428,74 @@
       background: var(--primary);
       transform: scaleX(0);
       transition: transform 0.3s ease;
-      z-index: 1;
     }
 
     .servicio-card:hover::before {
       transform: scaleX(1);
     }
 
-    .servicio-card .card-info {
-      padding: 0 1.5rem 2rem;
+    .servicio-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .servicio-icon {
+      width: 100%;
+      height: 200px;
+      margin: 0 0 1.5rem 0;
+      border-radius: 20px 20px 0 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .servicio-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .servicio-card:hover .servicio-icon img {
+      transform: scale(1.1);
     }
 
     .servicio-card h3 {
-      padding: 0 1.5rem;
       font-size: 1.3rem;
-      margin: 1.5rem 0 1rem;
+      margin-bottom: 1rem;
+      color: var(--dark);
+      padding: 0 1.5rem;
     }
 
-    /* VENTAS */
+    .servicio-card p {
+      color: var(--gray);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      padding: 0 1.5rem 2rem;
+    }
+
+    /* VENTAS SECTION */
     #ventas {
       background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+
+    .ventas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2.5rem;
+    }
+
+    .venta-card {
+      background: var(--white);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px var(--shadow);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .venta-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
     }
 
     .venta-badge {
@@ -433,11 +512,25 @@
       box-shadow: 0 5px 15px rgba(228, 87, 46, 0.4);
     }
 
-    .venta-card .card-image {
+    .venta-image {
+      width: 100%;
       height: 280px;
+      overflow: hidden;
+      position: relative;
     }
 
-    .venta-card .card-info {
+    .venta-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .venta-card:hover .venta-image img {
+      transform: scale(1.1);
+    }
+
+    .venta-info {
       padding: 2rem;
     }
 
@@ -452,6 +545,7 @@
       font-size: 1.3rem;
       font-weight: 600;
       margin-bottom: 1rem;
+      color: var(--dark);
     }
 
     .venta-details {
@@ -460,7 +554,6 @@
       margin-bottom: 1rem;
       font-size: 0.9rem;
       color: var(--gray);
-      flex-wrap: wrap;
     }
 
     .venta-detail {
@@ -469,8 +562,15 @@
       gap: 0.5rem;
     }
 
+    .venta-description {
+      color: var(--gray);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
     .btn-ver-mas {
-      display: block;
+      display: inline-block;
       width: 100%;
       padding: 0.9rem;
       background: var(--dark);
@@ -480,7 +580,6 @@
       border-radius: 10px;
       font-weight: 600;
       transition: all 0.3s ease;
-      margin-top: 1.5rem;
     }
 
     .btn-ver-mas:hover {
@@ -488,53 +587,7 @@
       transform: translateY(-2px);
     }
 
-    /* CONTACTO */
-    .contact-form {
-      max-width: 700px;
-      margin: 0 auto;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: var(--dark);
-      font-weight: 500;
-    }
-
-    input,
-    textarea {
-      width: 100%;
-      padding: 0.8rem;
-      border: 2px solid #e0e0e0;
-      border-radius: 10px;
-      font-size: 1rem;
-      transition: border 0.3s ease;
-      font-family: inherit;
-    }
-
-    input:focus,
-    textarea:focus {
-      border-color: var(--primary);
-      outline: none;
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 120px;
-    }
-
-    /* FOOTER */
+    /* FOOTER MODERNO */
     footer {
       background: var(--dark);
       color: var(--white);
@@ -545,11 +598,6 @@
     .footer-content {
       max-width: 1400px;
       margin: 0 auto;
-    }
-
-    .footer-content h3 {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
     }
 
     .redes-sociales {
@@ -660,11 +708,20 @@
       }
 
       .hero {
+        min-height: 100vh;
         padding: 100px 1.5rem 60px;
       }
 
       .logo {
         max-width: 250px;
+      }
+
+      .hero h1 {
+        font-size: 3rem;
+      }
+
+      .hero p {
+        font-size: 1.1rem;
       }
 
       .btn-cta {
@@ -687,10 +744,6 @@
         grid-template-columns: 1fr;
       }
 
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-
       section {
         padding: 4rem 1.5rem;
       }
@@ -699,6 +752,14 @@
     @media (max-width: 480px) {
       .logo {
         max-width: 200px;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .hero p {
+        font-size: 1rem;
       }
 
       .btn-cta {
@@ -739,7 +800,7 @@
       <p>Diseñamos espacios que transforman</p>
       <a href="#contacto" class="btn-cta">Contáctanos</a>
     </div>
-    <div class="scroll-indicator">↓</div>
+    <div class="scroll-indicator"></div>
   </section>
 
   <section id="sobre-nosotros">
@@ -757,8 +818,8 @@
 
   <section id="ventas">
     <div class="section-header fade-in">
-      <h2>Inmuebles en Venta</h2>
-      <p>La mejor inversión de tu vida fue y será el ladrillo</p>
+      <h2>Propiedades en Venta</h2>
+      <p>Descubre espacios excepcionales listos para habitar</p>
     </div>
     <div class="ventas-grid">
       <div class="venta-card fade-in">
@@ -767,7 +828,7 @@
           <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='280'%3E%3Crect fill='%23b5b5b5' width='400' height='280'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23666' font-size='20'%3ECasa Moderna%3C/text%3E%3C/svg%3E" alt="Casa Moderna">
         </div>
         <div class="venta-info">
-          <div class="venta-price">CONSULTAR</div>
+          <div class="venta-price">USD 320,000</div>
           <div class="venta-title">Casa Moderna en Zona Norte</div>
           <div class="venta-details">
             <div class="venta-detail">🛏️ 3 hab</div>
@@ -785,7 +846,7 @@
           <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='280'%3E%3Crect fill='%23a5a5a5' width='400' height='280'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23666' font-size='20'%3EDepartamento%3C/text%3E%3C/svg%3E" alt="Departamento">
         </div>
         <div class="venta-info">
-          <div class="venta-price">CONSULTAR</div>
+          <div class="venta-price">USD 195,000</div>
           <div class="venta-title">Departamento Centro</div>
           <div class="venta-details">
             <div class="venta-detail">🛏️ 2 hab</div>
@@ -803,7 +864,7 @@
           <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='280'%3E%3Crect fill='%2395a5a5' width='400' height='280'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23666' font-size='20'%3ETerreno%3C/text%3E%3C/svg%3E" alt="Terreno">
         </div>
         <div class="venta-info">
-          <div class="venta-price">CONSULTAR</div>
+          <div class="venta-price">USD 85,000</div>
           <div class="venta-title">Terreno Premium</div>
           <div class="venta-details">
             <div class="venta-detail">📐 450 m²</div>
@@ -859,37 +920,51 @@
     </div>
     <div class="servicios-grid">
       <div class="servicio-card fade-in">
-        <div class="servicio-icon">🏛️</div>
+        <div class="servicio-icon">
+          <img src="static/img/arquitectura.png" alt="Diseño Arquitectónico" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22%3E%3Crect fill=%22%23e0e0e0%22 width=%22400%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2224%22%3E🏛️%3C/text%3E%3C/svg%3E'">
+        </div>
         <h3>Diseño Arquitectónico</h3>
         <p>Diseño arquitectónico de edificios, ya sean residenciales, comerciales, rurales y más.</p>
       </div>
       <div class="servicio-card fade-in">
-        <div class="servicio-icon">🎨</div>
+        <div class="servicio-icon">
+          <img src="static/img/interiores.png" alt="Diseño de Interiores" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22%3E%3Crect fill=%22%23d5d5d5%22 width=%22400%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2224%22%3E🎨%3C/text%3E%3C/svg%3E'">
+        </div>
         <h3>Diseño de Interiores</h3>
         <p>Planificación de espacios, selección de materiales y colores, integración funcional de elementos.</p>
       </div>
       <div class="servicio-card fade-in">
-        <div class="servicio-icon">📊</div>
+        <div class="servicio-icon">
+          <img src="static/img/tasaciones.png" alt="Tasaciones" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22%3E%3Crect fill=%22%23c5c5c5%22 width=%22400%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2224%22%3E📊%3C/text%3E%3C/svg%3E'">
+        </div>
         <h3>Tasaciones</h3>
         <p>Tasaciones de obras y análisis de avance, trabajamos con grandes empresas en la supervisión de obras.</p>
       </div>
       <div class="servicio-card fade-in">
-        <div class="servicio-icon">🌳</div>
+        <div class="servicio-icon">
+          <img src="static/img/paisajismo.png" alt="Paisajismo y Exteriores" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22%3E%3Crect fill=%22%23b5b5b5%22 width=%22400%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2224%22%3E🌳%3C/text%3E%3C/svg%3E'">
+        </div>
         <h3>Paisajismo y Exteriores</h3>
         <p>Diseño de jardines, fachadas y espacios exteriores para todo tipo de edificaciones.</p>
       </div>
       <div class="servicio-card fade-in">
-        <div class="servicio-icon">🔨</div>
+        <div class="servicio-icon">
+          <img src="static/img/reformas.png" alt="Reformas" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22%3E%3Crect fill=%22%23a5a5a5%22 width=%22400%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2224%22%3E🔨%3C/text%3E%3C/svg%3E'">
+        </div>
         <h3>Reformas</h3>
         <p>Puesta en valor de inmuebles, adaptaciones y ampliaciones que transforman espacios.</p>
       </div>
       <div class="servicio-card fade-in">
-        <div class="servicio-icon">📝</div>
+        <div class="servicio-icon">
+          <img src="static/img/expedientes.png" alt="Expedientes Urbanísticos" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22%3E%3Crect fill=%22%2395a5a5%22 width=%22400%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2224%22%3E📝%3C/text%3E%3C/svg%3E'">
+        </div>
         <h3>Expedientes Urbanísticos</h3>
         <p>Regularización de planos y tramitación de expedientes municipales.</p>
       </div>
       <div class="servicio-card fade-in">
-        <div class="servicio-icon">👷</div>
+        <div class="servicio-icon">
+          <img src="static/img/direccion-obra.png" alt="Dirección de Obra" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22%3E%3Crect fill=%22%2385a5a5%22 width=%22400%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2224%22%3E👷%3C/text%3E%3C/svg%3E'">
+        </div>
         <h3>Dirección de Obra</h3>
         <p>Acompañamiento y asesoramiento técnico desde el inicio hasta la finalización del proyecto.</p>
       </div>
