@@ -122,7 +122,7 @@
     /* HERO SECTION CON PARALLAX */
     .hero {
       height: 100vh;
-      background: linear-gradient(135deg, #1F1F1F 0%, #3a3a3a 100%);
+      background: url('static/img/fondo-arquitectura.png') no-repeat center center/cover;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -140,10 +140,8 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: 
-        radial-gradient(circle at 20% 50%, rgba(228, 87, 46, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(228, 87, 46, 0.15) 0%, transparent 50%);
-      animation: pulse 8s ease-in-out infinite;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 0;
     }
 
     @keyframes pulse {
@@ -159,10 +157,10 @@
     }
 
     .logo {
-      max-width: 200px;
+      max-width: 350px;
       margin-bottom: 2rem;
       animation: fadeInDown 1s ease;
-      filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+      filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
     }
 
     .hero h1 {
@@ -722,9 +720,9 @@
       <ul id="navMenu">
         <li><a href="#inicio">Inicio</a></li>
         <li><a href="#sobre-nosotros">Sobre Nosotros</a></li>
+        <li><a href="#ventas">Ventas</a></li>
         <li><a href="#proyectos">Proyectos</a></li>
         <li><a href="#servicios">Servicios</a></li>
-        <li><a href="#ventas">Ventas</a></li>
         <li><a href="#contacto">Contacto</a></li>
       </ul>
     </nav>
@@ -732,9 +730,10 @@
 
   <section id="inicio" class="hero">
     <div class="hero-content">
+      <img src="static/img/logop.png" alt="Logo Arquitecta Anabella Zalazar" class="logo" onerror="this.style.display='none'">
       <h1>Arquitecta Anabella Zalazar</h1>
-      <p>Transformamos espacios en experiencias únicas</p>
-      <a href="#contacto" class="btn-cta">Conversemos tu proyecto</a>
+      <p>Diseñamos espacios que transforman</p>
+      <a href="#contacto" class="btn-cta">Contáctanos</a>
     </div>
     <div class="scroll-indicator"></div>
   </section>
@@ -748,6 +747,67 @@
       </div>
       <div class="about-image">
         <img src="static/img/AZ.jpg" alt="Anabella Zalazar" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22400%22%3E%3Crect fill=%22%23ddd%22 width=%22400%22 height=%22400%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2220%22%3EAnabella Zalazar%3C/text%3E%3C/svg%3E'">
+      </div>
+    </div>
+  </section>
+
+  <section id="ventas">
+    <div class="section-header fade-in">
+      <h2>Propiedades en Venta</h2>
+      <p>Descubre espacios excepcionales listos para habitar</p>
+    </div>
+    <div class="ventas-grid">
+      <div class="venta-card fade-in">
+        <div class="venta-badge">Disponible</div>
+        <div class="venta-image">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='280'%3E%3Crect fill='%23b5b5b5' width='400' height='280'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23666' font-size='20'%3ECasa Moderna%3C/text%3E%3C/svg%3E" alt="Casa Moderna">
+        </div>
+        <div class="venta-info">
+          <div class="venta-price">USD 320,000</div>
+          <div class="venta-title">Casa Moderna en Zona Norte</div>
+          <div class="venta-details">
+            <div class="venta-detail">🛏️ 3 hab</div>
+            <div class="venta-detail">🚿 2 baños</div>
+            <div class="venta-detail">📐 180 m²</div>
+          </div>
+          <p class="venta-description">Excelente propiedad con terminaciones de primera calidad, amplios espacios y diseño contemporáneo. Ideal para familias que buscan confort y estilo.</p>
+          <a href="#contacto" class="btn-ver-mas">Solicitar Información</a>
+        </div>
+      </div>
+
+      <div class="venta-card fade-in">
+        <div class="venta-badge">Nueva</div>
+        <div class="venta-image">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='280'%3E%3Crect fill='%23a5a5a5' width='400' height='280'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23666' font-size='20'%3EDepartamento%3C/text%3E%3C/svg%3E" alt="Departamento">
+        </div>
+        <div class="venta-info">
+          <div class="venta-price">USD 195,000</div>
+          <div class="venta-title">Departamento Centro</div>
+          <div class="venta-details">
+            <div class="venta-detail">🛏️ 2 hab</div>
+            <div class="venta-detail">🚿 1 baño</div>
+            <div class="venta-detail">📐 85 m²</div>
+          </div>
+          <p class="venta-description">Departamento luminoso en pleno centro, con balcón y cochera. Edificio con amenities y seguridad 24 hs.</p>
+          <a href="#contacto" class="btn-ver-mas">Solicitar Información</a>
+        </div>
+      </div>
+
+      <div class="venta-card fade-in">
+        <div class="venta-badge">Oportunidad</div>
+        <div class="venta-image">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='280'%3E%3Crect fill='%2395a5a5' width='400' height='280'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23666' font-size='20'%3ETerreno%3C/text%3E%3C/svg%3E" alt="Terreno">
+        </div>
+        <div class="venta-info">
+          <div class="venta-price">USD 85,000</div>
+          <div class="venta-title">Terreno Premium</div>
+          <div class="venta-details">
+            <div class="venta-detail">📐 450 m²</div>
+            <div class="venta-detail">📍 Country</div>
+          </div>
+          <p class="venta-description">Lote en exclusivo country club con servicios, seguridad y amenities. Ubicación privilegiada para construir tu hogar soñado.</p>
+          <a href="#contacto" class="btn-ver-mas">Solicitar Información</a>
+        </div>
       </div>
     </div>
   </section>
@@ -828,67 +888,6 @@
         <div class="servicio-icon">👷</div>
         <h3>Dirección de Obra</h3>
         <p>Acompañamiento y asesoramiento técnico desde el inicio hasta la finalización del proyecto.</p>
-      </div>
-    </div>
-  </section>
-
-  <section id="ventas">
-    <div class="section-header fade-in">
-      <h2>Propiedades en Venta</h2>
-      <p>Descubre espacios excepcionales listos para habitar</p>
-    </div>
-    <div class="ventas-grid">
-      <div class="venta-card fade-in">
-        <div class="venta-badge">Disponible</div>
-        <div class="venta-image">
-          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='280'%3E%3Crect fill='%23b5b5b5' width='400' height='280'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23666' font-size='20'%3ECasa Moderna%3C/text%3E%3C/svg%3E" alt="Casa Moderna">
-        </div>
-        <div class="venta-info">
-          <div class="venta-price">CONSULTAR</div>
-          <div class="venta-title">Casa Moderna en Zona Norte</div>
-          <div class="venta-details">
-            <div class="venta-detail">🛏️ 3 hab</div>
-            <div class="venta-detail">🚿 2 baños</div>
-            <div class="venta-detail">📐 180 m²</div>
-          </div>
-          <p class="venta-description">Excelente propiedad con terminaciones de primera calidad, amplios espacios y diseño contemporáneo. Ideal para familias que buscan confort y estilo.</p>
-          <a href="#contacto" class="btn-ver-mas">Solicitar Información</a>
-        </div>
-      </div>
-
-      <div class="venta-card fade-in">
-        <div class="venta-badge">Nueva</div>
-        <div class="venta-image">
-          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='280'%3E%3Crect fill='%23a5a5a5' width='400' height='280'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23666' font-size='20'%3EDepartamento%3C/text%3E%3C/svg%3E" alt="Departamento">
-        </div>
-        <div class="venta-info">
-          <div class="venta-price">USD 195,000</div>
-          <div class="venta-title">Departamento Centro</div>
-          <div class="venta-details">
-            <div class="venta-detail">🛏️ 2 hab</div>
-            <div class="venta-detail">🚿 1 baño</div>
-            <div class="venta-detail">📐 85 m²</div>
-          </div>
-          <p class="venta-description">Departamento luminoso en pleno centro, con balcón y cochera. Edificio con amenities y seguridad 24 hs.</p>
-          <a href="#contacto" class="btn-ver-mas">Solicitar Información</a>
-        </div>
-      </div>
-
-      <div class="venta-card fade-in">
-        <div class="venta-badge">Oportunidad</div>
-        <div class="venta-image">
-          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='280'%3E%3Crect fill='%2395a5a5' width='400' height='280'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23666' font-size='20'%3ETerreno%3C/text%3E%3C/svg%3E" alt="Terreno">
-        </div>
-        <div class="venta-info">
-          <div class="venta-price">USD 85,000</div>
-          <div class="venta-title">Terreno Premium</div>
-          <div class="venta-details">
-            <div class="venta-detail">📐 450 m²</div>
-            <div class="venta-detail">📍 Country</div>
-          </div>
-          <p class="venta-description">Lote en exclusivo country club con servicios, seguridad y amenities. Ubicación privilegiada para construir tu hogar soñado.</p>
-          <a href="#contacto" class="btn-ver-mas">Solicitar Información</a>
-        </div>
       </div>
     </div>
   </section>
