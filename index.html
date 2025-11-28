@@ -299,51 +299,107 @@
     /* SOBRE NOSOTROS */
     .about-content {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 5rem;
       align-items: center;
     }
 
+    .about-image-wrapper {
+      position: relative;
+      max-width: 450px;
+      margin: 0 auto;
+    }
+
+    .about-image-wrapper::before {
+      content: '';
+      position: absolute;
+      top: -25px;
+      left: -25px;
+      right: 25px;
+      bottom: 25px;
+      background: linear-gradient(135deg, var(--primary) 0%, #ff6b4a 100%);
+      border-radius: 30px;
+      opacity: 0.15;
+    }
+
+    .about-image-wrapper::after {
+      content: '';
+      position: absolute;
+      top: 25px;
+      left: 25px;
+      right: -25px;
+      bottom: -25px;
+      border: 3px solid var(--primary);
+      border-radius: 30px;
+      opacity: 0.3;
+    }
+
+    .about-image-wrapper img {
+      width: 100%;
+      border-radius: 25px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
+      position: relative;
+      z-index: 1;
+      transition: transform 0.5s ease;
+      display: block;
+    }
+
+    .about-image-wrapper:hover img {
+      transform: scale(1.03) translateY(-5px);
+    }
+
+    .about-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .about-label {
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
     .about-text h3 {
-      font-size: 2rem;
-      margin-bottom: 1.5rem;
-      color: var(--dark);
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -1px;
     }
 
     .about-text p {
       font-size: 1.05rem;
       color: var(--gray);
-      line-height: 1.8;
-      text-align: justify;
+      line-height: 1.9;
     }
 
-    .about-image {
-      position: relative;
+    .about-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 2px solid #f0f0f0;
     }
 
-    .about-image img {
-      width: 100%;
-      max-width: 400px;
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-      transition: transform 0.3s ease;
+    .stat-item {
+      text-align: center;
     }
 
-    .about-image img:hover {
-      transform: scale(1.05) rotate(2deg);
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1;
+      margin-bottom: 0.5rem;
     }
 
-    .about-image::before {
-      content: '';
-      position: absolute;
-      top: -20px;
-      right: -20px;
-      width: 200px;
-      height: 200px;
-      background: var(--primary);
-      opacity: 0.1;
-      border-radius: 50%;
-      z-index: -1;
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--gray);
+      font-weight: 500;
     }
 
     /* PROYECTOS GRID MODERNO */
@@ -804,14 +860,31 @@
   </section>
 
   <section id="sobre-nosotros">
-    <div class="about-content fade-in">
-      <div class="about-text">
-        <h3>Más de 25 años creando espacios extraordinarios</h3>
-        <p>En nuestro estudio de arquitectura nos dedicamos a crear espacios únicos y funcionales que reflejan las necesidades y sueños de nuestros clientes. Fundado y dirigido por Anabella Zalazar, arquitecta egresada de la Universidad Católica de Santa Fe, trabajamos en una amplia variedad de proyectos residenciales y comerciales en el Departamento La Capital.</p>
-        <p style="margin-top: 1rem;">Nos caracterizamos por un enfoque personalizado, siempre buscando soluciones innovadoras que integren estética, funcionalidad y sostenibilidad. Nuestro compromiso es transformar ideas en espacios duraderos, con un enfoque integral que garantiza calidad y diseño responsable en cada proyecto.</p>
-      </div>
+ <div class="about-content fade-in">
       <div class="about-image">
-        <img src="static/img/AZ.jpg" alt="Anabella Zalazar" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22400%22%3E%3Crect fill=%22%23ddd%22 width=%22400%22 height=%22400%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2220%22%3EAnabella Zalazar%3C/text%3E%3C/svg%3E'">
+        <div class="about-image-wrapper">
+          <img src="static/img/AZ.jpg" alt="Anabella Zalazar" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22450%22 height=%22550%22%3E%3Crect fill=%22%23ddd%22 width=%22450%22 height=%22550%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-size=%2220%22%3EAnabella Zalazar%3C/text%3E%3C/svg%3E'">
+        </div>
+      </div>
+      <div class="about-text">
+        <span class="about-label">Sobre Nosotros</span>
+        <h3>Transformando espacios, creando experiencias</h3>
+        <p>En nuestro estudio de arquitectura fusionamos creatividad y funcionalidad para dar vida a espacios únicos que reflejan la esencia de cada cliente. Dirigido por Anabella Zalazar, arquitecta egresada de la Universidad Católica de Santa Fe, trabajamos en proyectos residenciales y comerciales a lo largo del Departamento La Capital.</p>
+        <p>Nos apasiona crear diseños innovadores que integran estética contemporánea, máxima funcionalidad y compromiso sostenible. Cada proyecto es una oportunidad para transformar ideas en espacios excepcionales que perduran en el tiempo.</p>
+        <div class="about-stats">
+          <div class="stat-item">
+            <div class="stat-number">25+</div>
+            <div class="stat-label">Años de experiencia</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">200+</div>
+            <div class="stat-label">Proyectos realizados</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Clientes satisfechos</div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -1101,3 +1174,4 @@
   </script>
 </body>
 </html>
+
