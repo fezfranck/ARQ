@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proyecto | Estudio Anabella Zalazar</title>
+  <meta name="description" content="Detalle arquitectónico del proyecto realizado por Estudio Anabella Zalazar.">
+  <link rel="icon" type="image/png" href="/static/img/logop.png">
+  <link rel="stylesheet" href="/css/main.css">
+  <style>
+    .project-hero {
+      padding-top: 140px;
+      padding-bottom: 3rem;
+      background: var(--bg-main);
+    }
+    .breadcrumbs {
+      display: flex;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+    .breadcrumbs a:hover {
+      color: var(--accent-terracotta);
+    }
+    .project-header-box {
+      margin-bottom: 3rem;
+    }
+    .gallery-main-view {
+      width: 100%;
+      height: 600px;
+      background: #111;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-lg);
+    }
+    .gallery-main-view img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .gallery-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 50px;
+      height: 50px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border-radius: 50%;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+    .gallery-nav-btn:hover {
+      background: var(--accent-terracotta);
+    }
+    .gallery-thumbs {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+      margin-bottom: 4rem;
+    }
+    .gallery-thumb {
+      width: 120px;
+      height: 80px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      cursor: pointer;
+      opacity: 0.6;
+      border: 2px solid transparent;
+      transition: var(--transition);
+      flex-shrink: 0;
+    }
+    .gallery-thumb.active, .gallery-thumb:hover {
+      opacity: 1;
+      border-color: var(--accent-terracotta);
+    }
+    .gallery-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .project-info-grid {
+      display: grid;
+      grid-template-columns: 1.8fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+    .specs-card {
+      background: var(--bg-surface);
+      padding: 2.5rem;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+    }
+    .spec-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 0.95rem;
+    }
+    .spec-row:last-child {
+      border-bottom: none;
+    }
+    .spec-name {
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+    }
+    .spec-value {
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    @media (max-width: 900px) {
+      .project-info-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+      .gallery-main-view {
+        height: 380px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header scrolled" id="header">
+    <div class="nav-container">
+      <a href="/" class="brand">
+        <img src="/static/img/logop.png" alt="Logo" class="brand-logo" onerror="this.style.display='none'">
+        <div class="brand-text">
+          <span class="brand-title">Anabella Zalazar</span>
+          <span class="brand-subtitle">Arquitectura</span>
+        </div>
+      </a>
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="/#inicio" class="nav-link">Inicio</a></li>
+          <li><a href="/#proyectos" class="nav-link">Proyectos</a></li>
+          <li><a href="/#servicios" class="nav-link">Servicios</a></li>
+          <li><a href="/#contacto" class="nav-link nav-btn-contact">Contactar</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="project-hero">
+    <div class="container">
+      <!-- Breadcrumbs -->
+      <div class="breadcrumbs">
+        <a href="/">Inicio</a>
+        <span>/</span>
+        <a href="/#proyectos">Proyectos</a>
+        <span>/</span>
+        <span id="breadcrumbCurrent" style="color: var(--text-primary);">Cargando...</span>
+      </div>
+
+      <div class="project-header-box">
+        <span class="section-tag" id="projectCategory">Arquitectura</span>
+        <h1 class="section-title" id="projectTitle" style="font-size: clamp(2.5rem, 5vw, 4rem); margin-top: 0.5rem;">Cargando proyecto...</h1>
+      </div>
+
+      <!-- Galería Principal -->
+      <div class="gallery-main-view">
+        <img src="" alt="" id="mainGalleryImg">
+        <button class="gallery-nav-btn" id="prevPhoto" style="left: 1.5rem;" aria-label="Foto anterior">&#8592;</button>
+        <button class="gallery-nav-btn" id="nextPhoto" style="right: 1.5rem;" aria-label="Foto siguiente">&#8594;</button>
+      </div>
+
+      <!-- Miniaturas -->
+      <div class="gallery-thumbs" id="galleryThumbs"></div>
+
+      <!-- Información y Memoria Descriptiva -->
+      <div class="project-info-grid">
+        <div>
+          <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem; color: var(--text-primary);">Memoria Descriptiva</h2>
+          <div id="projectDescription" style="font-size: 1.1rem; line-height: 1.9; color: var(--text-secondary); white-space: pre-line;"></div>
+
+          <div style="margin-top: 3.5rem;">
+            <a href="/#contacto" class="btn-primary">Conversar sobre una obra similar <span>→</span></a>
+          </div>
+        </div>
+
+        <div class="specs-card">
+          <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem; color: var(--text-primary);">Ficha Técnica</h3>
+          <div class="spec-row">
+            <span class="spec-name">Ubicación</span>
+            <span class="spec-value" id="specLocation">-</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-name">Año</span>
+            <span class="spec-value" id="specYear">-</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-name">Superficie</span>
+            <span class="spec-value" id="specSurface">-</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-name">Tipología</span>
+            <span class="spec-value" id="specCategory">-</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-name">Estudio</span>
+            <span class="spec-value">Anabella Zalazar</span>
+          </div>
+
+          <a href="https://wa.me/5493425110000" id="projectWaBtn" target="_blank" class="btn-secondary" style="width: 100%; justify-content: center; margin-top: 2rem; background: #25D366; color: white; border: none;">
+            Consultar por WhatsApp 💬
+          </a>
+        </div>
+      </div>
+
+      <!-- Proyectos Relacionados -->
+      <div style="margin-top: 7rem;">
+        <span class="section-tag">Más Obras</span>
+        <h2 class="section-title">Otros Proyectos del Estudio</h2>
+        <div class="projects-grid" id="relatedProjectsGrid" style="margin-top: 2.5rem;"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer" style="margin-top: 5rem;">
+    <div class="container" style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+      <p>&copy; 2026 Estudio de Arquitectura Anabella Zalazar. <a href="/" style="color: var(--accent-terracotta);">Volver al inicio</a></p>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const parts = window.location.pathname.split('/proyecto/');
+      const slug = parts[1] ? parts[1].replace(/\/$/, '') : '';
+
+      if (!slug) {
+        window.location.href = '/#proyectos';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/public/projects/${encodeURIComponent(slug)}`);
+        if (!res.ok) throw new Error('Proyecto no encontrado');
+        const data = await res.json();
+        const project = data.project;
+        const related = data.related;
+
+        // Metadatos
+        document.title = `${project.title} | Estudio Anabella Zalazar`;
+        document.getElementById('breadcrumbCurrent').textContent = project.title;
+        document.getElementById('projectCategory').textContent = project.category || 'Arquitectura';
+        document.getElementById('projectTitle').textContent = project.title;
+        document.getElementById('projectDescription').textContent = project.description || '';
+        document.getElementById('specLocation').textContent = project.location || 'Santa Fe';
+        document.getElementById('specYear').textContent = project.year || '-';
+        document.getElementById('specSurface').textContent = project.surface || '-';
+        document.getElementById('specCategory').textContent = project.category || 'Residencial';
+
+        // Galería
+        const gallery = (project.gallery && project.gallery.length > 0) ? project.gallery : [project.cover || '/static/img/proyecto1.png'];
+        let currentIndex = 0;
+        const mainImg = document.getElementById('mainGalleryImg');
+        const thumbsContainer = document.getElementById('galleryThumbs');
+
+        function setPhoto(idx) {
+          currentIndex = idx;
+          mainImg.src = gallery[currentIndex];
+          document.querySelectorAll('.gallery-thumb').forEach((th, i) => {
+            th.classList.toggle('active', i === currentIndex);
+          });
+        }
+
+        gallery.forEach((url, i) => {
+          const thumb = document.createElement('div');
+          thumb.className = `gallery-thumb ${i === 0 ? 'active' : ''}`;
+          thumb.innerHTML = `<img src="${url}" alt="Foto ${i+1}">`;
+          thumb.addEventListener('click', () => setPhoto(i));
+          thumbsContainer.appendChild(thumb);
+        });
+
+        setPhoto(0);
+
+        document.getElementById('prevPhoto').addEventListener('click', () => {
+          setPhoto((currentIndex - 1 + gallery.length) % gallery.length);
+        });
+        document.getElementById('nextPhoto').addEventListener('click', () => {
+          setPhoto((currentIndex + 1) % gallery.length);
+        });
+
+        // WhatsApp link personalizado
+        const waBtn = document.getElementById('projectWaBtn');
+        const msg = encodeURIComponent(`Hola Arq. Anabella Zalazar, estuve viendo el proyecto "${project.title}" en su web y quisiera consultar más detalles.`);
+        waBtn.href = `https://wa.me/5493425110000?text=${msg}`;
+
+        // Renderizar relacionados
+        const relGrid = document.getElementById('relatedProjectsGrid');
+        if (related && related.length > 0) {
+          related.forEach(rp => {
+            const card = document.createElement('a');
+            card.href = `/proyecto/${rp.slug}`;
+            card.className = 'project-card';
+            card.innerHTML = `
+              <div class="project-card-image">
+                <img src="${rp.cover || '/static/img/proyecto1.png'}" alt="${rp.title}">
+                <span class="project-badge-cat">${rp.category || 'Arquitectura'}</span>
+              </div>
+              <div class="project-card-info">
+                <h3 class="project-title">${rp.title}</h3>
+                <p class="project-desc-excerpt">${rp.description || ''}</p>
+                <div class="project-cta-link">Ver Ficha Completa →</div>
+              </div>
+            `;
+            relGrid.appendChild(card);
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        window.location.href = '/#proyectos';
+      }
+    });
+  </script>
+</body>
+</html>

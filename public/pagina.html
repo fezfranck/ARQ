@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Página | Estudio Anabella Zalazar</title>
+  <meta name="description" content="Contenido oficial del Estudio de Arquitectura Anabella Zalazar.">
+  <link rel="icon" type="image/png" href="/static/img/logop.png">
+  <link rel="stylesheet" href="/css/main.css">
+  <style>
+    .page-main-container {
+      padding-top: 150px;
+      padding-bottom: 6rem;
+      min-height: 80vh;
+    }
+    .page-article {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .page-title {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      margin-bottom: 2rem;
+      color: var(--text-primary);
+    }
+    .page-block-header {
+      font-size: 1.85rem;
+      margin: 2.5rem 0 1rem;
+      color: var(--text-primary);
+    }
+    .page-block-text {
+      font-size: 1.15rem;
+      line-height: 1.9;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+    .page-block-quote {
+      border-left: 4px solid var(--accent-terracotta);
+      padding: 1.5rem 2rem;
+      background: var(--bg-surface-alt);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: 2.5rem 0;
+      font-style: italic;
+      font-size: 1.25rem;
+      color: var(--text-primary);
+    }
+    .page-block-quote cite {
+      display: block;
+      margin-top: 0.75rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-style: normal;
+      color: var(--accent-terracotta);
+    }
+    .page-block-image {
+      margin: 3rem 0;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+    .page-block-image img {
+      width: 100%;
+      height: auto;
+    }
+    .page-block-caption {
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+      background: var(--bg-surface);
+    }
+    .page-block-btn {
+      margin: 2.5rem 0;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header scrolled" id="header">
+    <div class="nav-container">
+      <a href="/" class="brand">
+        <img src="/static/img/logop.png" alt="Logo" class="brand-logo" onerror="this.style.display='none'">
+        <div class="brand-text">
+          <span class="brand-title">Anabella Zalazar</span>
+          <span class="brand-subtitle">Arquitectura</span>
+        </div>
+      </a>
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="/#inicio" class="nav-link">Inicio</a></li>
+          <li><a href="/#estudio" class="nav-link">Sobre el Estudio</a></li>
+          <li><a href="/#proyectos" class="nav-link">Proyectos</a></li>
+          <li><a href="/#servicios" class="nav-link">Servicios</a></li>
+          <li><a href="/#contacto" class="nav-link nav-btn-contact">Contactar</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-main-container">
+    <div class="container">
+      <article class="page-article">
+        <div style="margin-bottom: 1.5rem;">
+          <a href="/" style="color: var(--accent-terracotta); font-weight: 600; font-size: 0.9rem;">← Volver al Inicio</a>
+        </div>
+        
+        <h1 class="page-title" id="pageTitle">Cargando...</h1>
+
+        <div id="pageBlocksContainer">
+          <!-- Bloques modulares renderizados dinámicamente -->
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container" style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+      <p>&copy; 2026 Estudio de Arquitectura Anabella Zalazar. <a href="/" style="color: var(--accent-terracotta);">Volver al inicio</a></p>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const parts = window.location.pathname.split('/p/');
+      const slug = parts[1] ? parts[1].replace(/\/$/, '') : '';
+
+      if (!slug) {
+        window.location.href = '/';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/public/pages/${encodeURIComponent(slug)}`);
+        if (!res.ok) throw new Error('Página no encontrada');
+        const page = await res.json();
+
+        document.title = `${page.seoTitle || page.title} | Estudio Anabella Zalazar`;
+        document.getElementById('pageTitle').textContent = page.title;
+
+        const container = document.getElementById('pageBlocksContainer');
+        container.innerHTML = '';
+
+        if (Array.isArray(page.blocks)) {
+          page.blocks.forEach(block => {
+            const el = document.createElement('div');
+            
+            if (block.type === 'header') {
+              el.className = 'page-block-header';
+              el.textContent = block.content || '';
+            } else if (block.type === 'text') {
+              el.className = 'page-block-text';
+              el.textContent = block.content || '';
+            } else if (block.type === 'quote') {
+              el.className = 'page-block-quote';
+              el.innerHTML = `"${escapeHtml(block.content || '')}" ${block.author ? `<cite>— ${escapeHtml(block.author)}</cite>` : ''}`;
+            } else if (block.type === 'image') {
+              el.className = 'page-block-image';
+              el.innerHTML = `
+                <img src="${escapeHtml(block.url || '')}" alt="${escapeHtml(block.caption || page.title)}">
+                ${block.caption ? `<div class="page-block-caption">${escapeHtml(block.caption)}</div>` : ''}
+              `;
+            } else if (block.type === 'button') {
+              el.className = 'page-block-btn';
+              el.innerHTML = `<a href="${escapeHtml(block.url || '/#contacto')}" class="btn-primary">${escapeHtml(block.text || 'Contactar')} →</a>`;
+            }
+
+            container.appendChild(el);
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        window.location.href = '/';
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+      }
+    });
+  </script>
+</body>
+</html>

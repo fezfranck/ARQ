@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración | Estudio Anabella Zalazar</title>
+  <link rel="icon" type="image/png" href="/static/img/logop.png">
+  <link rel="stylesheet" href="/admin/css/admin.css">
+</head>
+<body>
+
+  <!-- ==========================================================================
+       PANTALLA DE INICIO DE SESIÓN (LOGIN)
+       ========================================================================== -->
+  <div class="login-wrapper" id="loginWrapper">
+    <div class="login-card">
+      <div class="login-header">
+        <img src="/static/img/logop.png" alt="Logo" class="login-logo" onerror="this.style.display='none'">
+        <h1 class="login-title">Estudio Anabella Zalazar</h1>
+        <p class="login-subtitle">Panel de Gestión de Contenidos & Obras</p>
+      </div>
+
+      <div id="loginFeedback" style="display: none; padding: 0.85rem; background: var(--admin-danger-bg); color: var(--admin-danger); border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.9rem;"></div>
+
+      <form id="loginForm">
+        <div class="admin-form-group">
+          <label class="admin-form-label" for="loginEmail">Correo Electrónico</label>
+          <input type="email" id="loginEmail" name="email" class="admin-input" placeholder="admin@anabellazalazararquitecta.com.ar" required autocomplete="username">
+        </div>
+
+        <div class="admin-form-group">
+          <label class="admin-form-label" for="loginPassword">Contraseña</label>
+          <input type="password" id="loginPassword" name="password" class="admin-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" class="btn-admin btn-admin-primary" style="width: 100%; justify-content: center; margin-top: 1rem; padding: 0.9rem;">
+          Iniciar Sesión 🔐
+        </button>
+      </form>
+
+      <div style="margin-top: 2rem; text-align: center;">
+        <a href="/" style="font-size: 0.85rem; color: var(--admin-text-muted);">← Volver al sitio web público</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       LAYOUT DEL PANEL DE ADMINISTRACIÓN
+       ========================================================================== -->
+  <div class="admin-layout" id="adminLayout" style="display: none;">
+    <!-- Barra Lateral (Sidebar) -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="sidebar-header">
+        <img src="/static/img/logop.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'">
+        <div class="sidebar-title-box">
+          <span class="sidebar-brand">Anabella Zalazar</span>
+          <span class="sidebar-role">Panel Administrativo</span>
+        </div>
+      </div>
+
+      <ul class="sidebar-nav">
+        <li>
+          <button class="nav-item-btn active" data-tab="dashboard">
+            <span>📊</span> Dashboard
+          </button>
+        </li>
+        <li>
+          <button class="nav-item-btn" data-tab="projects">
+            <span>🏛️</span> Proyectos & Obras
+          </button>
+        </li>
+        <li>
+          <button class="nav-item-btn" data-tab="services">
+            <span>📐</span> Servicios
+          </button>
+        </li>
+        <li>
+          <button class="nav-item-btn" data-tab="properties">
+            <span>🏷️</span> Propiedades en Venta
+          </button>
+        </li>
+        <li>
+          <button class="nav-item-btn" data-tab="pages">
+            <span>📄</span> Páginas & Pestañas
+          </button>
+        </li>
+        <li>
+          <button class="nav-item-btn" data-tab="settings">
+            <span>⚙️</span> Inicio & Configuración
+          </button>
+        </li>
+        <li>
+          <button class="nav-item-btn" data-tab="media">
+            <span>📸</span> Biblioteca de Medios
+          </button>
+        </li>
+        <li>
+          <button class="nav-item-btn" data-tab="inquiries">
+            <span>✉️</span> Consultas
+            <span class="nav-badge-pill" id="inquiriesBadge" style="display: none;">0</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-item-btn" data-tab="security">
+            <span>🔒</span> Seguridad & Clave
+          </button>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <a href="/" target="_blank" class="nav-item-btn" style="color: #A09E98;">
+          <span>🌐</span> Ver Sitio Web
+        </a>
+        <button class="nav-item-btn" id="logoutBtn" style="color: #FF8A80;">
+          <span>🚪</span> Cerrar Sesión
+        </button>
+      </div>
+    </aside>
+
+    <!-- Contenido Principal -->
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <h2 class="topbar-title" id="topbarTitle">Panel de Control</h2>
+        
+        <div class="topbar-actions">
+          <span style="font-size: 0.9rem; color: var(--admin-text-muted);">
+            Conectado como: <strong id="adminUserName" style="color: var(--admin-text-main);">Admin</strong>
+          </span>
+          <a href="/" target="_blank" class="btn-action-sm">Abrir Web ↗</a>
+        </div>
+      </header>
+
+      <div class="admin-content-area" id="adminContentArea">
+        <!-- Vistas renderizadas dinámicamente según la pestaña activa -->
+      </div>
+    </main>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL DE FORMULARIO
+       ========================================================================== -->
+  <div class="admin-modal-overlay" id="adminModalOverlay" role="dialog" aria-modal="true">
+    <div class="admin-modal-box">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title" id="adminModalTitle">Título</h3>
+        <button type="button" class="btn-action-sm" id="adminModalCloseBtn">&times;</button>
+      </div>
+      <div class="admin-modal-body" id="adminModalBody">
+        <!-- Contenido del formulario inyectado -->
+      </div>
+      <div class="admin-modal-footer">
+        <button type="button" class="btn-admin btn-admin-secondary" id="adminModalCancelBtn">Cancelar</button>
+        <button type="button" class="btn-admin btn-admin-primary" id="adminModalSaveBtn">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Contenedor -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="/admin/js/admin.js"></script>
+</body>
+</html>

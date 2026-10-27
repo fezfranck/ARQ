@@ -1,0 +1,301 @@
+{
+  "meta": {
+    "version": "2.0.0",
+    "createdAt": "2026-10-27T01:02:03.777Z",
+    "lastModified": "2026-10-27T01:03:12.486Z"
+  },
+  "settings": {
+    "studioName": "Estudio Anabella Zalazar | Arquitectura",
+    "architectName": "Anabella Zalazar",
+    "architectTitle": "Arquitecta (UCSF)",
+    "tagline": "Diseñamos espacios que transforman",
+    "bioP1": "En nuestro estudio de arquitectura fusionamos creatividad y funcionalidad para dar vida a espacios únicos que reflejan la esencia de cada cliente. Dirigido por Anabella Zalazar, arquitecta egresada de la Universidad Católica de Santa Fe, trabajamos en proyectos residenciales y comerciales hace más de 25 años.",
+    "bioP2": "Nos apasiona crear diseños innovadores que integran estética contemporánea, máxima funcionalidad y compromiso sostenible. Cada proyecto es una oportunidad para transformar ideas en espacios excepcionales que perduran en el tiempo.",
+    "yearsExperience": "25+",
+    "completedProjects": "200+",
+    "satisfiedClients": "100%",
+    "heroTitle": "Diseñamos espacios que transforman",
+    "heroSubtitle": "Arquitectura contemporánea con identidad, funcionalidad y compromiso sostenible en Santa Fe y la región.",
+    "heroImage": "/static/img/fondo-arquitectura.png",
+    "profileImage": "/static/img/AZ.jpg",
+    "logoImage": "/static/img/logop.png",
+    "email": "contacto@anabellazalazararquitecta.com.ar",
+    "phone": "+54 9 342 511-0000",
+    "whatsapp": "5493425110000",
+    "location": "Santa Fe, Argentina",
+    "address": "Santa Fe Capital, República Argentina",
+    "instagram": "https://www.instagram.com/",
+    "facebook": "https://www.facebook.com/",
+    "seoTitle": "Estudio Anabella Zalazar | Arquitectura Contemporánea en Santa Fe",
+    "seoDescription": "Estudio de arquitectura en Santa Fe dirigido por Anabella Zalazar. Más de 25 años proyectando residencias modernas, diseño de interiores, reformas y dirección de obras."
+  },
+  "projects": [
+    {
+      "id": "proj_1",
+      "slug": "residencia-moderna",
+      "title": "Residencia Moderna",
+      "category": "Residencial",
+      "year": "2023",
+      "location": "Santa Fe",
+      "surface": "280 m²",
+      "description": "Diseño contemporáneo que fusiona elegancia y funcionalidad en cada detalle. Grandes paños vidriados conectan el área social con galerías y jardines, optimizando la luz natural y la ventilación cruzada.",
+      "cover": "/static/img/proyecto1.png",
+      "gallery": [
+        "/static/img/proyecto1.png",
+        "/static/img/fondo-arquitectura.png"
+      ],
+      "altText": "Fachada contemporánea de Residencia Moderna en Santa Fe",
+      "featured": true,
+      "published": true,
+      "order": 1,
+      "createdAt": "2026-10-27T01:02:03.780Z"
+    },
+    {
+      "id": "proj_2",
+      "slug": "residencias-con-materiales-de-vanguardia",
+      "title": "Residencias con Materiales de Vanguardia",
+      "category": "Residencial",
+      "year": "2024",
+      "location": "Santa Fe",
+      "surface": "320 m²",
+      "description": "Vivienda unifamiliar resuelta con tecnología constructiva de vanguardia, aislaciones térmicas eficientes y nobleza de materiales. Integración de hormigón a la vista, madera y carpinterías de alto rendimiento.",
+      "cover": "/static/img/proyecto2.jpeg",
+      "gallery": [
+        "/static/img/proyecto2.jpeg"
+      ],
+      "altText": "Arquitectura residencial contemporánea con materiales nobles",
+      "featured": true,
+      "published": true,
+      "order": 2,
+      "createdAt": "2026-10-27T01:02:03.780Z"
+    },
+    {
+      "id": "proj_3",
+      "slug": "complejo-residencial-comercial",
+      "title": "Complejo Residencial & Comercial",
+      "category": "Comercial",
+      "year": "2023",
+      "location": "Santa Fe Capital",
+      "surface": "650 m²",
+      "description": "Desarrollo en altura con basamento comercial y unidades residenciales pensadas para el confort contemporáneo. Rigor estructural y estética sobria y perdurable.",
+      "cover": "/static/img/proyecto01.png",
+      "gallery": [
+        "/static/img/proyecto01.png"
+      ],
+      "altText": "Complejo comercial y residencial contemporáneo",
+      "featured": true,
+      "published": true,
+      "order": 3,
+      "createdAt": "2026-10-27T01:02:03.780Z"
+    }
+  ],
+  "services": [
+    {
+      "id": "serv_1",
+      "slug": "diseno-arquitectonico",
+      "title": "Diseño Arquitectónico",
+      "description": "Diseño arquitectónico integral de edificios residenciales, comerciales, corporativos y rurales, adaptados a la normativa y las necesidades particulares de cada comitente.",
+      "image": "/static/img/arquitectura.png",
+      "published": true,
+      "order": 1
+    },
+    {
+      "id": "serv_2",
+      "slug": "diseno-de-interiores",
+      "title": "Diseño de Interiores",
+      "description": "Planificación de espacios, ergonomía, selección de materiales, texturas, paletas cromáticas e integración lumínica para ambientes con carácter.",
+      "image": "/static/img/interiores.png",
+      "published": true,
+      "order": 2
+    },
+    {
+      "id": "serv_3",
+      "slug": "tasaciones",
+      "title": "Tasaciones de Obras",
+      "description": "Tasaciones rigurosas de inmuebles, certificaciones de avance de obra y peritajes técnicos con más de dos décadas de aval profesional.",
+      "image": "/static/img/tasaciones.png",
+      "published": true,
+      "order": 3
+    },
+    {
+      "id": "serv_4",
+      "slug": "paisajismo-y-exteriores",
+      "title": "Paisajismo y Exteriores",
+      "description": "Diseño armónico de jardines, terrazas, galerías y entornos verdes en estrecha sintonía con la volumetría de la edificación.",
+      "image": "/static/img/paisajismo.png",
+      "published": true,
+      "order": 4
+    },
+    {
+      "id": "serv_5",
+      "slug": "reformas-y-ampliaciones",
+      "title": "Reformas y Ampliaciones",
+      "description": "Puesta en valor de construcciones existentes, intervenciones estratégicas, modernización y ampliaciones que multiplican el valor patrimonial.",
+      "image": "/static/img/reformas.png",
+      "published": true,
+      "order": 5
+    },
+    {
+      "id": "serv_6",
+      "slug": "asesoria-arquitectonica",
+      "title": "Asesoría Arquitectónica",
+      "description": "Consultoría especializada previa a la compra de terrenos o propiedades, estudios de factibilidad constructiva y análisis de inversión.",
+      "image": "/static/img/asesoria.png",
+      "published": true,
+      "order": 6
+    },
+    {
+      "id": "serv_7",
+      "slug": "expedientes-urbanisticos",
+      "title": "Expedientes Urbanísticos",
+      "description": "Regularización de planos, trámites municipales, gestiones catastrales y permisos de edificación ante organismos oficiales.",
+      "image": "/static/img/expedientes.png",
+      "published": true,
+      "order": 7
+    },
+    {
+      "id": "serv_8",
+      "slug": "direccion-de-obra",
+      "title": "Dirección de Obra",
+      "description": "Supervisión técnica rigurosa, control de calidad en cada etapa constructiva, coordinación de gremios y cumplimiento de plazos y costos.",
+      "image": "/static/img/direccion-obra.png",
+      "published": true,
+      "order": 8
+    }
+  ],
+  "properties": [
+    {
+      "id": "prop_1",
+      "slug": "eco-urquiza",
+      "title": "ECO Urquiza",
+      "badge": "Nueva",
+      "price": "CONSULTAR",
+      "location": "Urquiza 1155, Santa Fe",
+      "surface": "37 m²",
+      "description": "Edificio ECO URQUIZA. Modernos departamentos con diseño premium y excelente ubicación céntrica en la ciudad de Santa Fe.",
+      "image": "/static/img/Vent03.png",
+      "published": true,
+      "order": 1
+    },
+    {
+      "id": "prop_2",
+      "slug": "finca-de-campo-8-hectareas",
+      "title": "Finca de Campo y 8 Hectáreas",
+      "badge": "Oportunidad",
+      "price": "CONSULTAR",
+      "location": "Arroyo Aguiar, Santa Fe",
+      "surface": "8 Hectáreas",
+      "description": "Campo de 8.5 hectáreas subdividido en 3 lotes: fracción de 7.5 has, lote con Casa-Galpón (¾ ha) y fracción residencial con Casa de campo (½ ha). Cuenta con cerco perimetral, luz eléctrica y agua.",
+      "image": "/static/img/Vent04.jpg",
+      "published": true,
+      "order": 2
+    }
+  ],
+  "pages": [
+    {
+      "id": "page_1",
+      "slug": "filosofia-y-enfoque",
+      "title": "Filosofía y Enfoque",
+      "navTitle": "Filosofía",
+      "inMenu": true,
+      "published": true,
+      "order": 1,
+      "seoTitle": "Filosofía y Enfoque de Diseño | Estudio Anabella Zalazar",
+      "seoDescription": "Conocé nuestra filosofía de diseño arquitectónico: integración espacial, compromiso bioclimático y materiales auténticos.",
+      "blocks": [
+        {
+          "type": "header",
+          "content": "Nuestra Filosofía de Diseño"
+        },
+        {
+          "type": "text",
+          "content": "Creemos que la arquitectura auténtica surge de un diálogo sensible entre el entorno, las necesidades de quienes habitan el espacio y la honestidad de los materiales. Cada proyecto es un desafío único donde la luz natural, la orientación bioclimática y la pureza formal guían nuestras decisiones."
+        },
+        {
+          "type": "quote",
+          "content": "La arquitectura no es solo construir volúmenes, sino esculpir el vacío donde transcurre la vida.",
+          "author": "Anabella Zalazar, Arquitecta"
+        },
+        {
+          "type": "image",
+          "url": "/static/img/fondo-arquitectura.png",
+          "caption": "Espacios concebidos para perdurar e inspirar"
+        },
+        {
+          "type": "text",
+          "content": "Acompañamos a nuestros clientes en cada etapa: desde el primer croquis conceptual y la viabilidad urbanística hasta la última terminación de obra, garantizando transparencia, optimización de recursos y un resultado que trasciende el paso del tiempo."
+        },
+        {
+          "type": "button",
+          "text": "Conversar con el Estudio",
+          "url": "/#contacto"
+        }
+      ]
+    }
+  ],
+  "media": [
+    {
+      "id": "m1",
+      "name": "fondo-arquitectura.png",
+      "url": "/static/img/fondo-arquitectura.png",
+      "type": "image/png"
+    },
+    {
+      "id": "m2",
+      "name": "AZ.jpg",
+      "url": "/static/img/AZ.jpg",
+      "type": "image/jpeg"
+    },
+    {
+      "id": "m3",
+      "name": "proyecto1.png",
+      "url": "/static/img/proyecto1.png",
+      "type": "image/png"
+    },
+    {
+      "id": "m4",
+      "name": "proyecto2.jpeg",
+      "url": "/static/img/proyecto2.jpeg",
+      "type": "image/jpeg"
+    },
+    {
+      "id": "m5",
+      "name": "proyecto01.png",
+      "url": "/static/img/proyecto01.png",
+      "type": "image/png"
+    },
+    {
+      "id": "m6",
+      "name": "Vent03.png",
+      "url": "/static/img/Vent03.png",
+      "type": "image/png"
+    },
+    {
+      "id": "m7",
+      "name": "Vent04.jpg",
+      "url": "/static/img/Vent04.jpg",
+      "type": "image/jpeg"
+    }
+  ],
+  "inquiries": [
+    {
+      "id": "inq_1ad3bd5dcd0a",
+      "name": "Comitente Prueba",
+      "email": "comitente@ejemplo.com",
+      "phone": "+54 342 4112233",
+      "message": "Hola, tengo un lote en Santa Fe y quisiera cotizar el anteproyecto de una vivienda unifamiliar.",
+      "read": false,
+      "createdAt": "2026-10-27T01:02:52.051Z"
+    }
+  ],
+  "users": [
+    {
+      "id": "usr_admin",
+      "email": "admin@anabellazalazararquitecta.com.ar",
+      "passwordHash": "31f17a8bd16467cdb0b037d9069c1083:8212f6c699a2cb5617b5bbc9f81554cdf13c927ca6386c514a1d2c7805478c0c04ed6132609cba0a87fc0c093f80d75fd9a2994e4658899289c24c9bb21c254d",
+      "name": "Anabella Zalazar",
+      "role": "admin",
+      "createdAt": "2026-10-27T01:02:03.835Z"
+    }
+  ]
+}
