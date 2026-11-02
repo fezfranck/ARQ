@@ -31,6 +31,26 @@
   },
   "projects": [
     {
+      "id": "proj_agora_plaza_italia",
+      "slug": "proyecto-agora-plaza-italia",
+      "title": "Ágora Plaza Italia",
+      "category": "Comercial / Mixto",
+      "year": "2024",
+      "location": "Santa Fe Capital",
+      "surface": "450 m²",
+      "description": "Desarrollo arquitectónico contemporáneo con integración de espacios públicos y áreas comerciales. Diseño vanguardista con foco en la iluminación natural, la eficiencia energética y la articulación urbana.",
+      "cover": "/static/img/proyecto3.png",
+      "gallery": [
+        "/static/img/proyecto3.png",
+        "/static/img/fondo-arquitectura.png"
+      ],
+      "altText": "Ágora Plaza Italia - Proyecto de arquitectura por Estudio Anabella Zalazar",
+      "featured": true,
+      "published": true,
+      "order": 1,
+      "createdAt": "2026-11-02T12:00:00.000Z"
+    },
+    {
       "id": "proj_1",
       "slug": "residencia-moderna",
       "title": "Residencia Moderna",
@@ -47,7 +67,7 @@
       "altText": "Fachada contemporánea de Residencia Moderna en Santa Fe",
       "featured": true,
       "published": true,
-      "order": 1,
+      "order": 2,
       "createdAt": "2026-10-27T01:02:03.780Z"
     },
     {

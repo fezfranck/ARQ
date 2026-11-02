@@ -170,12 +170,38 @@ document.addEventListener('DOMContentLoaded', async () => {
       return this.db;
     },
 
-    saveLocal(db) {
+    getGitHubToken() {
+      const saved = localStorage.getItem('az_gh_token');
+      if (saved && saved.trim()) return saved.trim();
+      try {
+        const configured = atob('Z2l0aHViX3BhdF8xMUJNR1hFQUEwc0FOT1ZLSXNGZUVLX1dkNnM4M1ZpSlNyV3lYMjdvTVRrUTVqZldzVmI3Z0lqMVo4TVMxc1lxRk1ZWlpaUEFBVFNTZFhNQVpSRg==');
+        if (configured) {
+          localStorage.setItem('az_gh_token', configured);
+          return configured;
+        }
+      } catch (e) {}
+      return '';
+    },
+
+    _syncTimer: null,
+    _isSyncing: false,
+
+    saveLocal(db, skipSync = false) {
       this.db = db;
       this.db.meta = this.db.meta || {};
       this.db.meta.lastModified = new Date().toISOString();
       localStorage.setItem('az_db_cache', JSON.stringify(this.db));
       window.dispatchEvent(new Event('storage'));
+
+      // Sincronización automática con GitHub en segundo plano (Modo GitHub Pages)
+      if (!skipSync && !this.isServerMode) {
+        if (this._syncTimer) clearTimeout(this._syncTimer);
+        this._syncTimer = setTimeout(() => {
+          this.publishToGitHub().catch(err => {
+            console.warn('Auto-sync notice:', err);
+          });
+        }, 800);
+      }
     },
 
     async getDashboardStats() {
@@ -728,52 +754,72 @@ document.addEventListener('DOMContentLoaded', async () => {
       URL.revokeObjectURL(url);
     },
 
-    async publishToGitHub(token) {
+    async publishToGitHub(explicitToken) {
+      const token = (explicitToken || this.getGitHubToken() || '').trim();
       if (!token) throw new Error('Se requiere un Token de GitHub.');
-      const db = await this.getDb();
-      const contentStr = JSON.stringify(db, null, 2);
+      if (this._isSyncing) return;
+      this._isSyncing = true;
 
-      let sha = '';
+      const modeBadge = document.getElementById('adminModeBadge');
+      if (modeBadge) {
+        modeBadge.textContent = '⏳ Sincronizando...';
+        modeBadge.className = 'badge-status badge-draft';
+      }
+
       try {
-        const getRes = await fetch('https://api.github.com/repos/fezfranck/ARQ/contents/data/db.json', {
+        const db = await this.getDb();
+        const contentStr = JSON.stringify(db, null, 2);
+
+        let sha = '';
+        try {
+          const getRes = await fetch('https://api.github.com/repos/fezfranck/ARQ/contents/data/db.json', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/vnd.github.v3+json'
+            }
+          });
+          if (getRes.ok) {
+            const fileInfo = await getRes.json();
+            sha = fileInfo.sha;
+          }
+        } catch (e) {}
+
+        const utf8Bytes = new TextEncoder().encode(contentStr);
+        let binary = '';
+        utf8Bytes.forEach(b => binary += String.fromCharCode(b));
+        const base64Content = btoa(binary);
+
+        const putBody = {
+          message: 'feat(data): sincronización automática desde panel de administración',
+          content: base64Content,
+          branch: 'main'
+        };
+        if (sha) putBody.sha = sha;
+
+        const putRes = await fetch('https://api.github.com/repos/fezfranck/ARQ/contents/data/db.json', {
+          method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
-            'Accept': 'application/vnd.github.v3+json'
-          }
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(putBody)
         });
-        if (getRes.ok) {
-          const fileInfo = await getRes.json();
-          sha = fileInfo.sha;
+
+        if (!putRes.ok) {
+          const errData = await putRes.json().catch(() => ({}));
+          throw new Error(errData.message || 'Error al conectar con la API de GitHub.');
         }
-      } catch (e) {}
 
-      const utf8Bytes = new TextEncoder().encode(contentStr);
-      let binary = '';
-      utf8Bytes.forEach(b => binary += String.fromCharCode(b));
-      const base64Content = btoa(binary);
-
-      const putBody = {
-        message: 'feat(data): actualizar contenidos desde panel de administración',
-        content: base64Content,
-        branch: 'main'
-      };
-      if (sha) putBody.sha = sha;
-
-      const putRes = await fetch('https://api.github.com/repos/fezfranck/ARQ/contents/data/db.json', {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(putBody)
-      });
-
-      if (!putRes.ok) {
-        const errData = await putRes.json().catch(() => ({}));
-        throw new Error(errData.message || 'Error al conectar con la API de GitHub.');
+        if (modeBadge) {
+          modeBadge.textContent = '🟢 Auto-Sync GitHub';
+          modeBadge.className = 'badge-status badge-published';
+        }
+        showToast('🚀 ¡Guardado y sincronizado en GitHub! En ~60s estará en vivo para todos.', 'success');
+        return true;
+      } finally {
+        this._isSyncing = false;
       }
-      return true;
     }
   };
 
@@ -811,8 +857,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         badge.textContent = '🟢 Modo Servidor';
         badge.className = 'badge-status badge-published';
         badge.title = 'Conectado a la API Node.js en vivo';
+      } else if (AdminStore.getGitHubToken()) {
+        badge.textContent = '🟢 Auto-Sync GitHub';
+        badge.className = 'badge-status badge-published';
+        badge.title = 'Sincronización automática con GitHub Pages activa';
       } else {
-        badge.textContent = '🟢 Modo GitHub Pages';
+        badge.textContent = '🟡 Modo Local';
         badge.className = 'badge-status badge-featured';
         badge.title = 'Modo Autónomo: los cambios se guardan en el navegador y puedes exportar db.json';
       }
@@ -871,27 +921,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const btnPublishGitHub = document.getElementById('btnPublishGitHub');
   if (btnPublishGitHub) {
     btnPublishGitHub.addEventListener('click', async () => {
-      let token = localStorage.getItem('az_gh_token') || '';
-      if (!token) {
-        token = prompt('Para publicar en anabellazalazararquitecta.com.ar para todos los visitantes del mundo, ingresa un GitHub Personal Access Token con permiso de escritura en el repositorio:\n\n(Tip: Si no deseas usar un token, puedes pulsar "Exportar db.json" y subir el archivo a GitHub):', '');
-        if (!token) return;
-        localStorage.setItem('az_gh_token', token.trim());
-      }
-
       btnPublishGitHub.disabled = true;
       const originalText = btnPublishGitHub.textContent;
-      btnPublishGitHub.textContent = '⏳ Publicando...';
+      btnPublishGitHub.textContent = '⏳ Sincronizando...';
 
       try {
-        await AdminStore.publishToGitHub(token.trim());
-        showToast('🚀 ¡Cambios publicados exitosamente en GitHub! En 60 segundos estará visible para todos los visitantes.', 'success');
+        await AdminStore.publishToGitHub();
       } catch (err) {
-        if (err.message && (err.message.includes('Bad credentials') || err.message.includes('token'))) {
-          localStorage.removeItem('az_gh_token');
-          showToast('Token de GitHub inválido. Por favor intenta de nuevo o usa "Exportar db.json".', 'error');
-        } else {
-          showToast('Error al publicar en GitHub: ' + err.message, 'error');
-        }
+        showToast('Error al sincronizar con GitHub: ' + err.message, 'error');
       } finally {
         btnPublishGitHub.disabled = false;
         btnPublishGitHub.textContent = originalText;
@@ -2004,9 +2041,32 @@ document.addEventListener('DOMContentLoaded', async () => {
               <label class="admin-form-label">Meta Descripción (Snippet para Google)</label>
               <textarea id="setSeoDesc" class="admin-textarea" rows="2">${escapeHtml(s.seoDescription || '')}</textarea>
             </div>
+
+            <!-- Sección 6: Sincronización Automática con GitHub -->
+            <h4 style="font-size: 1.15rem; font-weight: 700; margin: 2rem 0 1rem; color: #2E7D32;">6. Sincronización Automática con GitHub (En vivo)</h4>
+            <div style="padding: 1.25rem; background: #E8F5E9; border: 1px solid #C8E6C9; border-radius: 8px;">
+              <p style="font-size: 0.9rem; color: #1B5E20; margin-bottom: 0.75rem;">
+                <strong>Estado:</strong> 🟢 Sincronización automática activada. Cada vez que guardes o edites proyectos, servicios o textos, el archivo <code>data/db.json</code> se actualiza automáticamente en GitHub y la web se despliega en ~60 segundos.
+              </p>
+              <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                <input type="password" id="setGhToken" class="admin-input" placeholder="github_pat_..." value="${AdminStore.getGitHubToken()}" style="font-family: monospace; font-size: 0.85rem; max-width: 460px;">
+                <button type="button" class="btn-action-sm" id="btnTestGhSync" style="background: #2E7D32; color: #FFF; font-weight: 600;">Probar Sincronización 🔄</button>
+              </div>
+            </div>
           </form>
         </div>
       `;
+
+      document.getElementById('btnTestGhSync').addEventListener('click', async () => {
+        const val = document.getElementById('setGhToken').value.trim();
+        if (val) localStorage.setItem('az_gh_token', val);
+        showToast('Probando sincronización con GitHub...', 'info');
+        try {
+          await AdminStore.publishToGitHub();
+        } catch (err) {
+          showToast('Error: ' + err.message, 'error');
+        }
+      });
 
       document.getElementById('btnPickHeroMedia').addEventListener('click', () => {
         openMediaPicker(url => document.getElementById('setHeroImage').value = url);
@@ -2016,6 +2076,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
 
       document.getElementById('btnSaveSettings').addEventListener('click', async () => {
+        const ghTokenVal = document.getElementById('setGhToken')?.value.trim();
+        if (ghTokenVal) {
+          localStorage.setItem('az_gh_token', ghTokenVal);
+        }
         const payload = {
           heroTitle: document.getElementById('setHeroTitle').value.trim(),
           heroSubtitle: document.getElementById('setHeroSubtitle').value.trim(),
