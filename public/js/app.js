@@ -40,13 +40,28 @@ document.addEventListener('DOMContentLoaded', () => {
   // Inicializar carga de datos
   loadSiteData();
 
+  // Escuchar cambios desde otras pestañas (Panel de Administración)
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'az_db_cache' && e.newValue) {
+      try {
+        const parsed = JSON.parse(e.newValue);
+        applyDataFromDb(parsed);
+      } catch (err) {}
+    }
+  });
+
   async function loadSiteData() {
+    let localApplied = false;
+
     // 1. Verificar si hay cambios guardados localmente desde el Panel Admin
     const localDb = localStorage.getItem('az_db_cache');
     if (localDb) {
       try {
         const parsed = JSON.parse(localDb);
-        applyDataFromDb(parsed);
+        if (parsed && (parsed.projects || parsed.settings)) {
+          applyDataFromDb(parsed);
+          localApplied = true;
+        }
       } catch (e) {}
     }
 
@@ -62,17 +77,20 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {}
 
     // 3. Respaldo estático: Cargar data/db.json (para GitHub Pages)
-    try {
-      let staticRes = await fetch('data/db.json');
-      if (!staticRes.ok) {
-        staticRes = await fetch('/data/db.json');
+    // Solo si NO se aplicaron modificaciones locales previas
+    if (!localApplied) {
+      try {
+        let staticRes = await fetch('/data/db.json');
+        if (!staticRes.ok) {
+          staticRes = await fetch('data/db.json');
+        }
+        if (staticRes.ok) {
+          const parsed = await staticRes.json();
+          applyDataFromDb(parsed);
+        }
+      } catch (err) {
+        console.warn('Cargando con contenido estático predeterminado:', err);
       }
-      if (staticRes.ok) {
-        const parsed = await staticRes.json();
-        applyDataFromDb(parsed);
-      }
-    } catch (err) {
-      console.warn('Cargando con contenido estático predeterminado:', err);
     }
   }
 
@@ -162,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     navPages.forEach(page => {
       const li = document.createElement('li');
-      li.innerHTML = `<a href="/p/${escapeHtml(page.slug)}" class="nav-link">${escapeHtml(page.title)}</a>`;
+      li.innerHTML = `<a href="/pagina.html?slug=${escapeHtml(page.slug)}" class="nav-link">${escapeHtml(page.title)}</a>`;
       dynamicNavContainer.appendChild(li);
     });
   }
@@ -315,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalYear) modalYear.textContent = project.year || 'Reciente';
     if (modalSurface) modalSurface.textContent = project.surface || '-';
     if (modalDescription) modalDescription.textContent = project.description || '';
-    if (modalFullPageLink) modalFullPageLink.href = `/proyecto/${project.slug}`;
+    if (modalFullPageLink) modalFullPageLink.href = `/proyecto.html?slug=${encodeURIComponent(project.slug)}`;
 
     // Mostrar u ocultar flechas según cantidad de fotos
     if (modalPrevBtn && modalNextBtn) {

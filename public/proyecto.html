@@ -242,21 +242,82 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      const parts = window.location.pathname.split('/proyecto/');
-      const slug = parts[1] ? parts[1].replace(/\/$/, '') : '';
+      // 1. Obtener slug tanto por parámetro (?slug=...) como por ruta (/proyecto/...)
+      const urlParams = new URLSearchParams(window.location.search);
+      let slug = urlParams.get('slug');
+      if (!slug) {
+        const parts = window.location.pathname.split('/proyecto/');
+        slug = parts[1] ? parts[1].replace(/\/$/, '') : '';
+      }
 
       if (!slug) {
         window.location.href = '/#proyectos';
         return;
       }
 
-      try {
-        const res = await fetch(`/api/public/projects/${encodeURIComponent(slug)}`);
-        if (!res.ok) throw new Error('Proyecto no encontrado');
-        const data = await res.json();
-        const project = data.project;
-        const related = data.related;
+      slug = decodeURIComponent(slug).trim();
 
+      let project = null;
+      let related = [];
+      let waNumber = '5493425110000';
+
+      // Estrategia A: Buscar en localStorage (cambios creados o editados en el panel admin)
+      const localDbStr = localStorage.getItem('az_db_cache');
+      if (localDbStr) {
+        try {
+          const db = JSON.parse(localDbStr);
+          if (db.settings && db.settings.whatsapp) {
+            waNumber = db.settings.whatsapp.replace(/[^0-9]/g, '');
+          }
+          const found = (db.projects || []).find(p => p.slug === slug || p.id === slug);
+          if (found) {
+            project = found;
+            related = (db.projects || []).filter(p => p.id !== found.id && p.published).slice(0, 3);
+          }
+        } catch (e) {}
+      }
+
+      // Estrategia B: Si no se encontró en local, consultar backend API (si está en modo Node.js)
+      if (!project) {
+        try {
+          const res = await fetch(`/api/public/projects/${encodeURIComponent(slug)}`);
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && ct.includes('application/json')) {
+            const data = await res.json();
+            project = data.project;
+            related = data.related;
+          }
+        } catch (e) {}
+      }
+
+      // Estrategia C: Si sigue sin encontrarse, cargar desde data/db.json (GitHub Pages)
+      if (!project) {
+        try {
+          let staticRes = await fetch('/data/db.json');
+          if (!staticRes.ok) staticRes = await fetch('data/db.json');
+          if (staticRes.ok) {
+            const db = await staticRes.json();
+            if (db.settings && db.settings.whatsapp) {
+              waNumber = db.settings.whatsapp.replace(/[^0-9]/g, '');
+            }
+            const found = (db.projects || []).find(p => p.slug === slug || p.id === slug);
+            if (found) {
+              project = found;
+              related = (db.projects || []).filter(p => p.id !== found.id && p.published).slice(0, 3);
+            }
+          }
+        } catch (e) {}
+      }
+
+      if (!project) {
+        document.title = 'Proyecto no encontrado | Estudio Anabella Zalazar';
+        document.getElementById('breadcrumbCurrent').textContent = 'No encontrado';
+        document.getElementById('projectTitle').textContent = 'Proyecto no disponible';
+        document.getElementById('projectDescription').innerHTML = 'El proyecto solicitado no se encuentra disponible o fue despublicado.<br><br><a href="/#proyectos" class="btn-primary" style="display:inline-block; margin-top:1rem;">← Volver al Catálogo de Obras</a>';
+        return;
+      }
+
+      try {
         // Metadatos
         document.title = `${project.title} | Estudio Anabella Zalazar`;
         document.getElementById('breadcrumbCurrent').textContent = project.title;
@@ -302,14 +363,14 @@
         // WhatsApp link personalizado
         const waBtn = document.getElementById('projectWaBtn');
         const msg = encodeURIComponent(`Hola Arq. Anabella Zalazar, estuve viendo el proyecto "${project.title}" en su web y quisiera consultar más detalles.`);
-        waBtn.href = `https://wa.me/5493425110000?text=${msg}`;
+        waBtn.href = `https://wa.me/${waNumber}?text=${msg}`;
 
         // Renderizar relacionados
         const relGrid = document.getElementById('relatedProjectsGrid');
         if (related && related.length > 0) {
           related.forEach(rp => {
             const card = document.createElement('a');
-            card.href = `/proyecto/${rp.slug}`;
+            card.href = `/proyecto.html?slug=${encodeURIComponent(rp.slug)}`;
             card.className = 'project-card';
             card.innerHTML = `
               <div class="project-card-image">
@@ -327,7 +388,6 @@
         }
       } catch (err) {
         console.error(err);
-        window.location.href = '/#proyectos';
       }
     });
   </script>

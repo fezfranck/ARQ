@@ -4,6 +4,52 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Página no encontrada (404) | Estudio Anabella Zalazar</title>
+  <script>
+    // Enrutamiento inteligente para GitHub Pages (SPA y rutas amigables)
+    (function() {
+      var p = window.location.pathname;
+      var s = window.location.search;
+      var h = window.location.hash;
+
+      // 1. Redirección si se abrió /admin/proyecto.html?slug=...
+      if (p.indexOf('admin/proyecto.html') !== -1 || p.indexOf('/admin/proyecto.html') !== -1) {
+        window.location.replace('/proyecto.html' + s + h);
+        return;
+      }
+
+      // 2. Redirección si se abrió /admin/pagina.html?slug=...
+      if (p.indexOf('admin/pagina.html') !== -1 || p.indexOf('/admin/pagina.html') !== -1) {
+        window.location.replace('/pagina.html' + s + h);
+        return;
+      }
+
+      // 3. Redirección limpia para /proyecto/mi-slug -> /proyecto.html?slug=mi-slug
+      if (p.indexOf('/proyecto/') !== -1) {
+        var slug = p.split('/proyecto/')[1];
+        if (slug) {
+          slug = slug.replace(/\/$/, '');
+          window.location.replace('/proyecto.html?slug=' + encodeURIComponent(slug) + (s ? '&' + s.substring(1) : '') + h);
+          return;
+        }
+      }
+
+      // 4. Redirección limpia para /p/mi-slug -> /pagina.html?slug=mi-slug
+      if (p.indexOf('/p/') !== -1) {
+        var slugP = p.split('/p/')[1];
+        if (slugP) {
+          slugP = slugP.replace(/\/$/, '');
+          window.location.replace('/pagina.html?slug=' + encodeURIComponent(slugP) + (s ? '&' + s.substring(1) : '') + h);
+          return;
+        }
+      }
+
+      // 5. Redirección si se abrió /admin sin barra final
+      if (p === '/admin') {
+        window.location.replace('/admin/');
+        return;
+      }
+    })();
+  </script>
   <link rel="icon" type="image/png" href="/static/img/logop.png">
   <link rel="stylesheet" href="/css/main.css">
   <style>

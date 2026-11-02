@@ -267,12 +267,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (isEdit) {
         const idx = db.projects.findIndex(p => p.id === id);
         if (idx !== -1) {
-          db.projects[idx] = { ...db.projects[idx], ...payload, id, updatedAt: new Date().toISOString() };
+          const oldSlug = db.projects[idx].slug;
+          const slug = payload.slug || oldSlug || payload.title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+          db.projects[idx] = { ...db.projects[idx], ...payload, id, slug, updatedAt: new Date().toISOString() };
           saved = db.projects[idx];
         }
       } else {
         const newId = `proj_${Date.now()}`;
-        const slug = payload.slug || payload.title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+        const rawSlug = payload.slug || payload.title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+        const slug = rawSlug || `proyecto-${Date.now()}`;
         saved = {
           ...payload,
           id: newId,
@@ -490,11 +493,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (isEdit) {
         const idx = db.pages.findIndex(p => p.id === id);
         if (idx !== -1) {
-          db.pages[idx] = { ...db.pages[idx], ...payload, id };
+          const oldSlug = db.pages[idx].slug;
+          const slug = payload.slug || oldSlug || payload.title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+          db.pages[idx] = { ...db.pages[idx], ...payload, id, slug };
           saved = db.pages[idx];
         }
       } else {
-        saved = { ...payload, id: `page_${Date.now()}` };
+        const rawSlug = payload.slug || payload.title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+        const slug = rawSlug || `pagina-${Date.now()}`;
+        saved = { ...payload, id: `page_${Date.now()}`, slug };
         db.pages.push(saved);
       }
       this.saveLocal(db);
@@ -719,6 +726,54 @@ document.addEventListener('DOMContentLoaded', async () => {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    },
+
+    async publishToGitHub(token) {
+      if (!token) throw new Error('Se requiere un Token de GitHub.');
+      const db = await this.getDb();
+      const contentStr = JSON.stringify(db, null, 2);
+
+      let sha = '';
+      try {
+        const getRes = await fetch('https://api.github.com/repos/fezfranck/ARQ/contents/data/db.json', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+        if (getRes.ok) {
+          const fileInfo = await getRes.json();
+          sha = fileInfo.sha;
+        }
+      } catch (e) {}
+
+      const utf8Bytes = new TextEncoder().encode(contentStr);
+      let binary = '';
+      utf8Bytes.forEach(b => binary += String.fromCharCode(b));
+      const base64Content = btoa(binary);
+
+      const putBody = {
+        message: 'feat(data): actualizar contenidos desde panel de administración',
+        content: base64Content,
+        branch: 'main'
+      };
+      if (sha) putBody.sha = sha;
+
+      const putRes = await fetch('https://api.github.com/repos/fezfranck/ARQ/contents/data/db.json', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(putBody)
+      });
+
+      if (!putRes.ok) {
+        const errData = await putRes.json().catch(() => ({}));
+        throw new Error(errData.message || 'Error al conectar con la API de GitHub.');
+      }
+      return true;
     }
   };
 
@@ -809,6 +864,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnExportDbGlobal.addEventListener('click', () => {
       AdminStore.exportDbJson();
       showToast('Descargando db.json actualizado para GitHub', 'success');
+    });
+  }
+
+  // Botón global de publicar en GitHub (para GitHub Pages en vivo)
+  const btnPublishGitHub = document.getElementById('btnPublishGitHub');
+  if (btnPublishGitHub) {
+    btnPublishGitHub.addEventListener('click', async () => {
+      let token = localStorage.getItem('az_gh_token') || '';
+      if (!token) {
+        token = prompt('Para publicar en anabellazalazararquitecta.com.ar para todos los visitantes del mundo, ingresa un GitHub Personal Access Token con permiso de escritura en el repositorio:\n\n(Tip: Si no deseas usar un token, puedes pulsar "Exportar db.json" y subir el archivo a GitHub):', '');
+        if (!token) return;
+        localStorage.setItem('az_gh_token', token.trim());
+      }
+
+      btnPublishGitHub.disabled = true;
+      const originalText = btnPublishGitHub.textContent;
+      btnPublishGitHub.textContent = '⏳ Publicando...';
+
+      try {
+        await AdminStore.publishToGitHub(token.trim());
+        showToast('🚀 ¡Cambios publicados exitosamente en GitHub! En 60 segundos estará visible para todos los visitantes.', 'success');
+      } catch (err) {
+        if (err.message && (err.message.includes('Bad credentials') || err.message.includes('token'))) {
+          localStorage.removeItem('az_gh_token');
+          showToast('Token de GitHub inválido. Por favor intenta de nuevo o usa "Exportar db.json".', 'error');
+        } else {
+          showToast('Error al publicar en GitHub: ' + err.message, 'error');
+        }
+      } finally {
+        btnPublishGitHub.disabled = false;
+        btnPublishGitHub.textContent = originalText;
+      }
     });
   }
 
@@ -1016,7 +1103,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </td>
                     <td>${p.order || 0}</td>
                     <td style="text-align: right;">
-                      <a href="proyecto.html?slug=${p.slug}" target="_blank" class="btn-action-sm">👁️ Ver</a>
+                      <a href="/proyecto.html?slug=${encodeURIComponent(p.slug)}" target="_blank" class="btn-action-sm">👁️ Ver</a>
                       <button class="btn-action-sm btn-edit-project" data-id="${p.id}">✏️ Editar</button>
                       <button class="btn-action-sm btn-action-danger btn-delete-project" data-id="${p.id}">🗑️</button>
                     </td>
@@ -1584,12 +1671,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                   <tr>
                     <td><strong>${escapeHtml(pg.navTitle || pg.title)}</strong></td>
                     <td>${escapeHtml(pg.title)}</td>
-                    <td><code>pagina.html?slug=${escapeHtml(pg.slug)}</code></td>
+                    <td><code>/pagina.html?slug=${escapeHtml(pg.slug)}</code></td>
                     <td>${pg.inMenu ? '<span class="badge-status badge-published">Visible en Menú</span>' : '<span class="badge-status badge-draft">Solo Enlace</span>'}</td>
                     <td>${pg.published ? '<span class="badge-status badge-published">Publicada</span>' : '<span class="badge-status badge-draft">Borrador</span>'}</td>
                     <td>${pg.order || 0}</td>
                     <td style="text-align: right;">
-                      <a href="pagina.html?slug=${pg.slug}" target="_blank" class="btn-action-sm">👁️ Ver</a>
+                      <a href="/pagina.html?slug=${encodeURIComponent(pg.slug)}" target="_blank" class="btn-action-sm">👁️ Ver</a>
                       <button class="btn-action-sm btn-edit-page" data-id="${pg.id}">✏️ Editar Bloques</button>
                       <button class="btn-action-sm btn-action-danger btn-delete-page" data-id="${pg.id}">🗑️</button>
                     </td>
@@ -1723,7 +1810,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           fieldsHtml = `
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
               <input type="text" class="admin-input block-field" data-key="text" placeholder="Texto del botón (ej: Iniciar Consulta)" value="${escapeHtml(block.text || '')}">
-              <input type="text" class="admin-input block-field" data-key="url" placeholder="Enlace de destino (ej: index.html#contacto)" value="${escapeHtml(block.url || '')}">
+              <input type="text" class="admin-input block-field" data-key="url" placeholder="Enlace de destino (ej: /#contacto)" value="${escapeHtml(block.url || '')}">
             </div>
           `;
         }

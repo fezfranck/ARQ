@@ -125,19 +125,65 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      const parts = window.location.pathname.split('/p/');
-      const slug = parts[1] ? parts[1].replace(/\/$/, '') : '';
+      // 1. Obtener slug tanto por parámetro (?slug=...) como por ruta (/p/...)
+      const urlParams = new URLSearchParams(window.location.search);
+      let slug = urlParams.get('slug');
+      if (!slug) {
+        const parts = window.location.pathname.split('/p/');
+        slug = parts[1] ? parts[1].replace(/\/$/, '') : '';
+      }
 
       if (!slug) {
         window.location.href = '/';
         return;
       }
 
-      try {
-        const res = await fetch(`/api/public/pages/${encodeURIComponent(slug)}`);
-        if (!res.ok) throw new Error('Página no encontrada');
-        const page = await res.json();
+      slug = decodeURIComponent(slug).trim();
 
+      let page = null;
+
+      // Estrategia A: Buscar en localStorage
+      const localDbStr = localStorage.getItem('az_db_cache');
+      if (localDbStr) {
+        try {
+          const db = JSON.parse(localDbStr);
+          const found = (db.pages || []).find(p => p.slug === slug || p.id === slug);
+          if (found) page = found;
+        } catch (e) {}
+      }
+
+      // Estrategia B: Si no, consultar backend API
+      if (!page) {
+        try {
+          const res = await fetch(`/api/public/pages/${encodeURIComponent(slug)}`);
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && ct.includes('application/json')) {
+            page = await res.json();
+          }
+        } catch (e) {}
+      }
+
+      // Estrategia C: Si no, consultar data/db.json
+      if (!page) {
+        try {
+          let staticRes = await fetch('/data/db.json');
+          if (!staticRes.ok) staticRes = await fetch('data/db.json');
+          if (staticRes.ok) {
+            const db = await staticRes.json();
+            const found = (db.pages || []).find(p => p.slug === slug || p.id === slug);
+            if (found) page = found;
+          }
+        } catch (e) {}
+      }
+
+      if (!page) {
+        document.title = 'Página no encontrada | Estudio Anabella Zalazar';
+        document.getElementById('pageTitle').textContent = 'Página no encontrada';
+        document.getElementById('pageBlocksContainer').innerHTML = '<p>El contenido solicitado no existe o fue despublicado. <a href="/" class="btn-primary" style="display:inline-block; margin-top:1rem;">Volver al Inicio</a></p>';
+        return;
+      }
+
+      try {
         document.title = `${page.seoTitle || page.title} | Estudio Anabella Zalazar`;
         document.getElementById('pageTitle').textContent = page.title;
 
@@ -173,7 +219,6 @@
         }
       } catch (err) {
         console.error(err);
-        window.location.href = '/';
       }
 
       function escapeHtml(str) {
