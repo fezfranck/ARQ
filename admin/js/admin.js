@@ -808,6 +808,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (!putRes.ok) {
           const errData = await putRes.json().catch(() => ({}));
+          if (putRes.status === 403) {
+            throw new Error('Permisos insuficientes: al token le falta el permiso de ESCRITURA ("Contents: Read and write"). Edítalo en GitHub o usa un token Classic marcando la casilla "repo".');
+          } else if (putRes.status === 401) {
+            localStorage.removeItem('az_gh_token');
+            throw new Error('Token no reconocido por GitHub (Bad credentials). Verifica el código copiado.');
+          }
           throw new Error(errData.message || 'Error al conectar con la API de GitHub.');
         }
 
