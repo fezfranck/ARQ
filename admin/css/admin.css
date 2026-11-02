@@ -2,7 +2,7 @@
    ESTUDIO ANABELLA ZALAZAR - PANEL DE ADMINISTRACIÓN PRIVADO (CSS)
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 :root {
   --admin-bg: #F4F3EF;
@@ -27,7 +27,7 @@
   --admin-warning-bg: #FFF3E0;
 
   --admin-font: 'Plus Jakarta Sans', sans-serif;
-  --admin-font-display: 'Syne', sans-serif;
+  --admin-font-display: 'Inter', sans-serif;
 
   --admin-radius: 10px;
   --admin-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);

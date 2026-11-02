@@ -44,6 +44,10 @@ app.use('/static', express.static(path.join(__dirname, 'static'), {
   maxAge: '7d'
 }));
 
+app.use('/data', express.static(path.join(__dirname, 'data'), {
+  maxAge: '1m'
+}));
+
 // Frontend público
 app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: '1h'

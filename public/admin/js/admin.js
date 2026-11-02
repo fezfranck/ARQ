@@ -1,8 +1,9 @@
 /**
  * ESTUDIO ANABELLA ZALAZAR - CLIENTE ADMINISTRATIVO COMPLETO
+ * Soporte Dual: Modo Servidor Node.js + Modo Autónomo (GitHub Pages)
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Estado de la aplicación
   let currentUser = null;
   let activeTab = 'dashboard';
@@ -24,6 +25,703 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalCancelBtn = document.getElementById('adminModalCancelBtn');
   const modalCloseBtn = document.getElementById('adminModalCloseBtn');
 
+  /* ==========================================================================
+     CAPA DE DATOS UNIFICADA (ADMIN STORE)
+     ========================================================================== */
+  const AdminStore = {
+    isServerMode: false,
+    db: null,
+
+    async init() {
+      // 1. Probar si el backend Node.js responde
+      try {
+        const res = await fetch('/api/auth/me');
+        const ct = res.headers.get('content-type') || '';
+        if (res.ok && ct.includes('application/json')) {
+          const data = await res.json();
+          if (data && data.user) {
+            this.isServerMode = true;
+            return data.user;
+          }
+        }
+      } catch (e) {}
+
+      this.isServerMode = false;
+      // 2. Verificar sesión guardada en localStorage (Modo GitHub Pages)
+      const saved = localStorage.getItem('az_admin_session');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {}
+      }
+      return null;
+    },
+
+    async login(email, password) {
+      const cleanEmail = (email || '').trim().toLowerCase();
+
+      // Intento 1: Servidor Node.js si está disponible
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: cleanEmail, password })
+        });
+        const ct = res.headers.get('content-type') || '';
+        if (ct.includes('application/json')) {
+          const data = await res.json();
+          if (res.ok && data.success) {
+            this.isServerMode = true;
+            return { success: true, user: data.user, mode: 'server' };
+          } else {
+            throw new Error(data.error || 'Credenciales inválidas.');
+          }
+        }
+      } catch (err) {
+        if (err.message && !err.message.includes('fetch') && !err.message.includes('token') && !err.message.includes('JSON')) {
+          throw err;
+        }
+      }
+
+      // Intento 2: Modo Autónomo (GitHub Pages / Estático)
+      const customPass = localStorage.getItem('az_custom_password') || 'Anabella2026!';
+      const isValidPass = (password === 'Anabella2026!' || password === customPass);
+      const isValidEmail = cleanEmail.length >= 3 && (
+        cleanEmail.includes('anabella') || 
+        cleanEmail.includes('admin') || 
+        cleanEmail.includes('@')
+      );
+
+      if (isValidEmail && isValidPass) {
+        this.isServerMode = false;
+        const user = {
+          id: 'usr_admin',
+          email: cleanEmail,
+          name: 'Anabella Zalazar',
+          role: 'admin',
+          isStatic: true
+        };
+        localStorage.setItem('az_admin_session', JSON.stringify(user));
+        await this.getDb();
+        return { success: true, user, mode: 'static' };
+      }
+
+      throw new Error('Credenciales incorrectas. Verifique el correo electrónico y la contraseña.');
+    },
+
+    logout() {
+      localStorage.removeItem('az_admin_session');
+      fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+    },
+
+    async getDb() {
+      if (this.db) return this.db;
+
+      // Buscar en localStorage primero
+      const cached = localStorage.getItem('az_db_cache');
+      if (cached) {
+        try {
+          this.db = JSON.parse(cached);
+          return this.db;
+        } catch (e) {}
+      }
+
+      // Intentar cargar data/db.json
+      const paths = ['data/db.json', '/data/db.json', '../data/db.json'];
+      for (const p of paths) {
+        try {
+          const res = await fetch(p);
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && (ct.includes('application/json') || p.endsWith('.json'))) {
+            this.db = await res.json();
+            localStorage.setItem('az_db_cache', JSON.stringify(this.db));
+            return this.db;
+          }
+        } catch (e) {}
+      }
+
+      // Fallback mínimo seguro
+      this.db = {
+        meta: { lastModified: new Date().toISOString() },
+        settings: {
+          studioName: 'Estudio Anabella Zalazar | Arquitectura',
+          architectName: 'Anabella Zalazar',
+          architectTitle: 'Arquitecta (UCSF)',
+          tagline: 'Diseñamos espacios que transforman',
+          yearsExperience: '25+',
+          completedProjects: '200+',
+          satisfiedClients: '100%',
+          heroTitle: 'Diseñamos espacios que transforman',
+          heroSubtitle: 'Arquitectura contemporánea con identidad, funcionalidad y compromiso sostenible en Santa Fe y la región.',
+          heroImage: 'static/img/fondo-arquitectura.png',
+          profileImage: 'static/img/AZ.jpg',
+          email: 'contacto@anabellazalazararquitecta.com.ar',
+          phone: '+54 9 342 511-0000',
+          whatsapp: '5493425110000',
+          location: 'Santa Fe, Argentina'
+        },
+        projects: [],
+        services: [],
+        properties: [],
+        pages: [],
+        media: [],
+        inquiries: []
+      };
+      return this.db;
+    },
+
+    saveLocal(db) {
+      this.db = db;
+      this.db.meta = this.db.meta || {};
+      this.db.meta.lastModified = new Date().toISOString();
+      localStorage.setItem('az_db_cache', JSON.stringify(this.db));
+      window.dispatchEvent(new Event('storage'));
+    },
+
+    async getDashboardStats() {
+      if (this.isServerMode) {
+        try {
+          const res = await fetch('/api/admin/dashboard');
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && ct.includes('application/json')) {
+            return await res.json();
+          }
+        } catch (e) {}
+      }
+
+      const db = await this.getDb();
+      const projects = db.projects || [];
+      const services = db.services || [];
+      const properties = db.properties || [];
+      const pages = db.pages || [];
+      const inquiries = db.inquiries || [];
+      const media = db.media || [];
+
+      return {
+        stats: {
+          totalProjects: projects.length,
+          publishedProjects: projects.filter(p => p.published).length,
+          draftProjects: projects.filter(p => !p.published).length,
+          totalServices: services.length,
+          publishedServices: services.filter(s => s.published).length,
+          totalPages: pages.length,
+          publishedPages: pages.filter(p => p.published).length,
+          totalProperties: properties.length,
+          totalInquiries: inquiries.length,
+          unreadInquiries: inquiries.filter(i => !i.read).length,
+          totalMedia: media.length
+        },
+        recentInquiries: inquiries.slice(0, 5),
+        recentProjects: projects.slice(0, 5)
+      };
+    },
+
+    async getProjects() {
+      if (this.isServerMode) {
+        try {
+          const res = await fetch('/api/admin/projects');
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && ct.includes('application/json')) {
+            const list = await res.json();
+            const db = await this.getDb();
+            db.projects = list;
+            this.saveLocal(db);
+            return list;
+          }
+        } catch (e) {}
+      }
+      const db = await this.getDb();
+      return db.projects || [];
+    },
+
+    async saveProject(payload, isEdit, id) {
+      if (this.isServerMode) {
+        try {
+          const url = isEdit ? `/api/admin/projects/${id}` : '/api/admin/projects';
+          const method = isEdit ? 'PUT' : 'POST';
+          const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && ct.includes('application/json')) {
+            const saved = await res.json();
+            const db = await this.getDb();
+            if (isEdit) {
+              const idx = db.projects.findIndex(p => p.id === id);
+              if (idx !== -1) db.projects[idx] = saved;
+            } else {
+              db.projects.push(saved);
+            }
+            this.saveLocal(db);
+            return saved;
+          }
+        } catch (e) {}
+      }
+
+      // Modo local
+      const db = await this.getDb();
+      db.projects = db.projects || [];
+      let saved;
+      if (isEdit) {
+        const idx = db.projects.findIndex(p => p.id === id);
+        if (idx !== -1) {
+          db.projects[idx] = { ...db.projects[idx], ...payload, id, updatedAt: new Date().toISOString() };
+          saved = db.projects[idx];
+        }
+      } else {
+        const newId = `proj_${Date.now()}`;
+        const slug = payload.slug || payload.title.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+        saved = {
+          ...payload,
+          id: newId,
+          slug,
+          createdAt: new Date().toISOString()
+        };
+        db.projects.push(saved);
+      }
+      this.saveLocal(db);
+      return saved;
+    },
+
+    async deleteProject(id) {
+      if (this.isServerMode) {
+        try {
+          await fetch(`/api/admin/projects/${id}`, { method: 'DELETE' });
+        } catch (e) {}
+      }
+      const db = await this.getDb();
+      db.projects = (db.projects || []).filter(p => p.id !== id);
+      this.saveLocal(db);
+    },
+
+    async getServices() {
+      if (this.isServerMode) {
+        try {
+          const res = await fetch('/api/admin/services');
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && ct.includes('application/json')) {
+            const list = await res.json();
+            const db = await this.getDb();
+            db.services = list;
+            this.saveLocal(db);
+            return list;
+          }
+        } catch (e) {}
+      }
+      const db = await this.getDb();
+      return db.services || [];
+    },
+
+    async saveService(payload, isEdit, id) {
+      if (this.isServerMode) {
+        try {
+          const url = isEdit ? `/api/admin/services/${id}` : '/api/admin/services';
+          const method = isEdit ? 'PUT' : 'POST';
+          const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && ct.includes('application/json')) {
+            const saved = await res.json();
+            const db = await this.getDb();
+            if (isEdit) {
+              const idx = db.services.findIndex(s => s.id === id);
+              if (idx !== -1) db.services[idx] = saved;
+            } else {
+              db.services.push(saved);
+            }
+            this.saveLocal(db);
+            return saved;
+          }
+        } catch (e) {}
+      }
+
+      const db = await this.getDb();
+      db.services = db.services || [];
+      let saved;
+      if (isEdit) {
+        const idx = db.services.findIndex(s => s.id === id);
+        if (idx !== -1) {
+          db.services[idx] = { ...db.services[idx], ...payload, id };
+          saved = db.services[idx];
+        }
+      } else {
+        saved = { ...payload, id: `serv_${Date.now()}` };
+        db.services.push(saved);
+      }
+      this.saveLocal(db);
+      return saved;
+    },
+
+    async deleteService(id) {
+      if (this.isServerMode) {
+        try {
+          await fetch(`/api/admin/services/${id}`, { method: 'DELETE' });
+        } catch (e) {}
+      }
+      const db = await this.getDb();
+      db.services = (db.services || []).filter(s => s.id !== id);
+      this.saveLocal(db);
+    },
+
+    async getProperties() {
+      if (this.isServerMode) {
+        try {
+          const res = await fetch('/api/admin/properties');
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && ct.includes('application/json')) {
+            const list = await res.json();
+            const db = await this.getDb();
+            db.properties = list;
+            this.saveLocal(db);
+            return list;
+          }
+        } catch (e) {}
+      }
+      const db = await this.getDb();
+      return db.properties || [];
+    },
+
+    async saveProperty(payload, isEdit, id) {
+      if (this.isServerMode) {
+        try {
+          const url = isEdit ? `/api/admin/properties/${id}` : '/api/admin/properties';
+          const method = isEdit ? 'PUT' : 'POST';
+          const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && ct.includes('application/json')) {
+            const saved = await res.json();
+            const db = await this.getDb();
+            if (isEdit) {
+              const idx = db.properties.findIndex(p => p.id === id);
+              if (idx !== -1) db.properties[idx] = saved;
+            } else {
+              db.properties.push(saved);
+            }
+            this.saveLocal(db);
+            return saved;
+          }
+        } catch (e) {}
+      }
+
+      const db = await this.getDb();
+      db.properties = db.properties || [];
+      let saved;
+      if (isEdit) {
+        const idx = db.properties.findIndex(p => p.id === id);
+        if (idx !== -1) {
+          db.properties[idx] = { ...db.properties[idx], ...payload, id };
+          saved = db.properties[idx];
+        }
+      } else {
+        saved = { ...payload, id: `prop_${Date.now()}` };
+        db.properties.push(saved);
+      }
+      this.saveLocal(db);
+      return saved;
+    },
+
+    async deleteProperty(id) {
+      if (this.isServerMode) {
+        try {
+          await fetch(`/api/admin/properties/${id}`, { method: 'DELETE' });
+        } catch (e) {}
+      }
+      const db = await this.getDb();
+      db.properties = (db.properties || []).filter(p => p.id !== id);
+      this.saveLocal(db);
+    },
+
+    async getPages() {
+      if (this.isServerMode) {
+        try {
+          const res = await fetch('/api/admin/pages');
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && ct.includes('application/json')) {
+            const list = await res.json();
+            const db = await this.getDb();
+            db.pages = list;
+            this.saveLocal(db);
+            return list;
+          }
+        } catch (e) {}
+      }
+      const db = await this.getDb();
+      return db.pages || [];
+    },
+
+    async savePage(payload, isEdit, id) {
+      if (this.isServerMode) {
+        try {
+          const url = isEdit ? `/api/admin/pages/${id}` : '/api/admin/pages';
+          const method = isEdit ? 'PUT' : 'POST';
+          const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && ct.includes('application/json')) {
+            const saved = await res.json();
+            const db = await this.getDb();
+            if (isEdit) {
+              const idx = db.pages.findIndex(p => p.id === id);
+              if (idx !== -1) db.pages[idx] = saved;
+            } else {
+              db.pages.push(saved);
+            }
+            this.saveLocal(db);
+            return saved;
+          }
+        } catch (e) {}
+      }
+
+      const db = await this.getDb();
+      db.pages = db.pages || [];
+      let saved;
+      if (isEdit) {
+        const idx = db.pages.findIndex(p => p.id === id);
+        if (idx !== -1) {
+          db.pages[idx] = { ...db.pages[idx], ...payload, id };
+          saved = db.pages[idx];
+        }
+      } else {
+        saved = { ...payload, id: `page_${Date.now()}` };
+        db.pages.push(saved);
+      }
+      this.saveLocal(db);
+      return saved;
+    },
+
+    async deletePage(id) {
+      if (this.isServerMode) {
+        try {
+          await fetch(`/api/admin/pages/${id}`, { method: 'DELETE' });
+        } catch (e) {}
+      }
+      const db = await this.getDb();
+      db.pages = (db.pages || []).filter(p => p.id !== id);
+      this.saveLocal(db);
+    },
+
+    async getSettings() {
+      if (this.isServerMode) {
+        try {
+          const res = await fetch('/api/admin/settings');
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && ct.includes('application/json')) {
+            const s = await res.json();
+            const db = await this.getDb();
+            db.settings = s;
+            this.saveLocal(db);
+            return s;
+          }
+        } catch (e) {}
+      }
+      const db = await this.getDb();
+      return db.settings || {};
+    },
+
+    async saveSettings(payload) {
+      if (this.isServerMode) {
+        try {
+          const res = await fetch('/api/admin/settings', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && ct.includes('application/json')) {
+            const saved = await res.json();
+            const db = await this.getDb();
+            db.settings = saved;
+            this.saveLocal(db);
+            return saved;
+          }
+        } catch (e) {}
+      }
+
+      const db = await this.getDb();
+      db.settings = { ...(db.settings || {}), ...payload };
+      this.saveLocal(db);
+      return db.settings;
+    },
+
+    async getMedia() {
+      if (this.isServerMode) {
+        try {
+          const res = await fetch('/api/admin/media');
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && ct.includes('application/json')) {
+            const list = await res.json();
+            const db = await this.getDb();
+            db.media = list;
+            this.saveLocal(db);
+            return list;
+          }
+        } catch (e) {}
+      }
+      const db = await this.getDb();
+      return db.media || [];
+    },
+
+    async uploadMediaFiles(files) {
+      if (this.isServerMode) {
+        try {
+          const formData = new FormData();
+          for (let i = 0; i < files.length; i++) {
+            formData.append('files', files[i]);
+          }
+          const res = await fetch('/api/admin/upload', {
+            method: 'POST',
+            body: formData
+          });
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && ct.includes('application/json')) {
+            const data = await res.json();
+            const db = await this.getDb();
+            db.media = db.media || [];
+            if (data.files) {
+              db.media.unshift(...data.files);
+            }
+            this.saveLocal(db);
+            return data.files || [];
+          }
+        } catch (e) {}
+      }
+
+      // Modo local/estático: Convertir imagen a Data URL para persistencia inmediata en el navegador
+      const db = await this.getDb();
+      db.media = db.media || [];
+      const added = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const dataUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.readAsDataURL(file);
+        });
+        const item = {
+          id: `med_${Date.now()}_${i}`,
+          name: file.name,
+          url: dataUrl,
+          type: file.type,
+          size: file.size,
+          alt: file.name,
+          createdAt: new Date().toISOString()
+        };
+        db.media.unshift(item);
+        added.push(item);
+      }
+      this.saveLocal(db);
+      return added;
+    },
+
+    async deleteMedia(id) {
+      if (this.isServerMode) {
+        try {
+          await fetch(`/api/admin/media/${id}`, { method: 'DELETE' });
+        } catch (e) {}
+      }
+      const db = await this.getDb();
+      db.media = (db.media || []).filter(m => m.id !== id);
+      this.saveLocal(db);
+    },
+
+    async getInquiries() {
+      if (this.isServerMode) {
+        try {
+          const res = await fetch('/api/admin/inquiries');
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && ct.includes('application/json')) {
+            const list = await res.json();
+            const db = await this.getDb();
+            db.inquiries = list;
+            this.saveLocal(db);
+            return list;
+          }
+        } catch (e) {}
+      }
+      const db = await this.getDb();
+      return db.inquiries || [];
+    },
+
+    async markInquiryRead(id, isRead) {
+      if (this.isServerMode) {
+        try {
+          await fetch(`/api/admin/inquiries/${id}/read`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ read: isRead })
+          });
+        } catch (e) {}
+      }
+      const db = await this.getDb();
+      const inq = (db.inquiries || []).find(i => i.id === id);
+      if (inq) inq.read = isRead;
+      this.saveLocal(db);
+    },
+
+    async deleteInquiry(id) {
+      if (this.isServerMode) {
+        try {
+          await fetch(`/api/admin/inquiries/${id}`, { method: 'DELETE' });
+        } catch (e) {}
+      }
+      const db = await this.getDb();
+      db.inquiries = (db.inquiries || []).filter(i => i.id !== id);
+      this.saveLocal(db);
+    },
+
+    async changePassword(currentPassword, newPassword) {
+      if (this.isServerMode) {
+        try {
+          const res = await fetch('/api/auth/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ currentPassword, newPassword })
+          });
+          const ct = res.headers.get('content-type') || '';
+          if (res.ok && ct.includes('application/json')) {
+            const data = await res.json();
+            if (data.success) return true;
+          }
+        } catch (e) {}
+      }
+
+      // Verificación en modo local
+      const currentCustom = localStorage.getItem('az_custom_password') || 'Anabella2026!';
+      if (currentPassword !== 'Anabella2026!' && currentPassword !== currentCustom) {
+        throw new Error('La contraseña actual ingresada no es correcta.');
+      }
+      localStorage.setItem('az_custom_password', newPassword);
+      return true;
+    },
+
+    async exportDbJson() {
+      const db = await this.getDb();
+      const jsonStr = JSON.stringify(db, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'db.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  };
+
   // Inicializar verificación de sesión
   checkAuth();
 
@@ -31,16 +729,11 @@ document.addEventListener('DOMContentLoaded', () => {
      AUTENTICACIÓN
      ========================================================================== */
   async function checkAuth() {
-    try {
-      const res = await fetch('/api/auth/me');
-      const data = await res.json();
-      if (data.user) {
-        currentUser = data.user;
-        showAdminApp();
-      } else {
-        showLogin();
-      }
-    } catch (err) {
+    const user = await AdminStore.init();
+    if (user) {
+      currentUser = user;
+      showAdminApp();
+    } else {
       showLogin();
     }
   }
@@ -55,6 +748,21 @@ document.addEventListener('DOMContentLoaded', () => {
     loginWrapper.style.display = 'none';
     adminLayout.style.display = 'flex';
     if (adminUserName) adminUserName.textContent = currentUser.name || currentUser.email;
+
+    // Actualizar indicador de modo
+    const badge = document.getElementById('adminModeBadge');
+    if (badge) {
+      if (AdminStore.isServerMode) {
+        badge.textContent = '🟢 Modo Servidor';
+        badge.className = 'badge-status badge-published';
+        badge.title = 'Conectado a la API Node.js en vivo';
+      } else {
+        badge.textContent = '🟢 Modo GitHub Pages';
+        badge.className = 'badge-status badge-featured';
+        badge.title = 'Modo Autónomo: los cambios se guardan en el navegador y puedes exportar db.json';
+      }
+    }
+
     loadTab(activeTab);
   }
 
@@ -68,25 +776,17 @@ document.addEventListener('DOMContentLoaded', () => {
       loginFeedback.style.display = 'none';
 
       try {
-        const res = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: loginForm.email.value.trim(),
-            password: loginForm.password.value
-          })
-        });
-
-        const data = await res.json();
-        if (res.ok && data.success) {
-          currentUser = data.user;
-          showToast('Sesión iniciada correctamente', 'success');
+        const result = await AdminStore.login(loginForm.email.value, loginForm.password.value);
+        if (result && result.success) {
+          currentUser = result.user;
+          const msg = result.mode === 'server' 
+            ? 'Sesión iniciada correctamente (Servidor Activo)' 
+            : 'Sesión iniciada correctamente';
+          showToast(msg, 'success');
           showAdminApp();
-        } else {
-          throw new Error(data.error || 'Credenciales inválidas.');
         }
       } catch (err) {
-        loginFeedback.textContent = err.message;
+        loginFeedback.textContent = err.message || 'Error al iniciar sesión';
         loginFeedback.style.display = 'block';
       } finally {
         submitBtn.disabled = false;
@@ -96,14 +796,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', async () => {
-      try {
-        await fetch('/api/auth/logout', { method: 'POST' });
-        showToast('Sesión cerrada con éxito', 'success');
-        showLogin();
-      } catch (err) {
-        showLogin();
-      }
+    logoutBtn.addEventListener('click', () => {
+      AdminStore.logout();
+      showToast('Sesión cerrada con éxito', 'success');
+      showLogin();
+    });
+  }
+
+  // Botón global de exportar db.json
+  const btnExportDbGlobal = document.getElementById('btnExportDbGlobal');
+  if (btnExportDbGlobal) {
+    btnExportDbGlobal.addEventListener('click', () => {
+      AdminStore.exportDbJson();
+      showToast('Descargando db.json actualizado para GitHub', 'success');
     });
   }
 
@@ -172,11 +877,9 @@ document.addEventListener('DOMContentLoaded', () => {
   async function renderDashboard(container) {
     container.innerHTML = '<div style="text-align:center; padding:3rem;">Cargando estadísticas...</div>';
     try {
-      const res = await fetch('/api/admin/dashboard');
-      const data = await res.json();
+      const data = await AdminStore.getDashboardStats();
       const stats = data.stats;
 
-      // Actualizar badge de consultas en el sidebar
       const badge = document.getElementById('inquiriesBadge');
       if (badge) {
         badge.textContent = stats.unreadInquiries || '0';
@@ -220,7 +923,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <button class="btn-admin btn-admin-primary" id="dashNewProjBtn">➕ Crear Nuevo Proyecto</button>
               <button class="btn-admin btn-admin-secondary" id="dashNewPageBtn">📄 Crear Nueva Página / Pestaña</button>
               <button class="btn-admin btn-admin-secondary" id="dashUploadBtn">📸 Subir Fotografías a la Galería</button>
-              <button class="btn-admin btn-admin-secondary" id="dashBackupBtn">💾 Descargar Copia de Seguridad Completa</button>
+              <button class="btn-admin btn-admin-secondary" id="dashBackupBtn">💾 Descargar db.json Actualizado para GitHub</button>
             </div>
           </div>
 
@@ -235,7 +938,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div style="padding: 0.85rem 0; border-bottom: 1px solid var(--admin-border); display: flex; justify-content: space-between; align-items: center;">
                       <div>
                         <strong>${escapeHtml(inq.name)}</strong>
-                        <div style="font-size: 0.8rem; color: var(--admin-text-muted);">${escapeHtml(inq.email)} • ${new Date(inq.createdAt).toLocaleDateString()}</div>
+                        <div style="font-size: 0.8rem; color: var(--admin-text-muted);">${escapeHtml(inq.email)} • ${new Date(inq.createdAt || Date.now()).toLocaleDateString()}</div>
                       </div>
                       ${inq.read ? '<span class="badge-status badge-draft">Leído</span>' : '<span class="badge-status badge-published">Nuevo</span>'}
                     </div>
@@ -246,16 +949,15 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `;
 
-      document.getElementById('dashNewProjBtn').addEventListener('click', () => {
-        openProjectModalForm();
-      });
-      document.getElementById('dashNewPageBtn').addEventListener('click', () => {
-        openPageModalForm();
-      });
+      document.getElementById('dashNewProjBtn').addEventListener('click', () => openProjectModalForm());
+      document.getElementById('dashNewPageBtn').addEventListener('click', () => openPageModalForm());
       document.getElementById('dashUploadBtn').addEventListener('click', () => {
         document.querySelector('[data-tab="media"]').click();
       });
-      document.getElementById('dashBackupBtn').addEventListener('click', downloadBackup);
+      document.getElementById('dashBackupBtn').addEventListener('click', () => {
+        AdminStore.exportDbJson();
+        showToast('Descargando db.json actualizado', 'success');
+      });
       document.getElementById('dashViewAllInquiries').addEventListener('click', () => {
         document.querySelector('[data-tab="inquiries"]').click();
       });
@@ -271,8 +973,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function renderProjects(container) {
     container.innerHTML = '<div style="text-align:center; padding:3rem;">Cargando proyectos...</div>';
     try {
-      const res = await fetch('/api/admin/projects');
-      const projects = await res.json();
+      const projects = await AdminStore.getProjects();
 
       container.innerHTML = `
         <div class="admin-card">
@@ -301,7 +1002,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${projects.map(p => `
                   <tr>
                     <td>
-                      <img src="${p.cover || '/static/img/proyecto1.png'}" style="width: 60px; height: 42px; object-fit: cover; border-radius: 4px;" alt="">
+                      <img src="${p.cover || 'static/img/proyecto1.png'}" style="width: 60px; height: 42px; object-fit: cover; border-radius: 4px;" alt="">
                     </td>
                     <td>
                       <strong>${escapeHtml(p.title)}</strong>
@@ -315,7 +1016,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </td>
                     <td>${p.order || 0}</td>
                     <td style="text-align: right;">
-                      <a href="/proyecto/${p.slug}" target="_blank" class="btn-action-sm">👁️ Ver</a>
+                      <a href="proyecto.html?slug=${p.slug}" target="_blank" class="btn-action-sm">👁️ Ver</a>
                       <button class="btn-action-sm btn-edit-project" data-id="${p.id}">✏️ Editar</button>
                       <button class="btn-action-sm btn-action-danger btn-delete-project" data-id="${p.id}">🗑️</button>
                     </td>
@@ -390,7 +1091,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="admin-form-group">
           <label class="admin-form-label">URL Imagen de Portada *</label>
           <div style="display: flex; gap: 0.5rem;">
-            <input type="text" id="pCover" class="admin-input" required placeholder="/uploads/... o /static/img/..." value="${escapeHtml(project?.cover || '/static/img/proyecto1.png')}">
+            <input type="text" id="pCover" class="admin-input" required placeholder="static/img/... o data:image/..." value="${escapeHtml(project?.cover || 'static/img/proyecto1.png')}">
             <button type="button" class="btn-action-sm" id="btnPickCoverMedia">Elegir de Medios</button>
           </div>
         </div>
@@ -400,14 +1101,14 @@ document.addEventListener('DOMContentLoaded', () => {
           <input type="text" id="pAltText" class="admin-input" placeholder="Descripción visual de la foto para Google" value="${escapeHtml(project?.altText || '')}">
         </div>
 
-        <!-- Galería de Fotos -->
         <div class="admin-form-group">
           <label class="admin-form-label">Galería de Fotografías del Proyecto</label>
-          <p style="font-size: 0.8rem; color: var(--admin-text-muted); margin-bottom: 0.75rem;">Agrega múltiples fotos para la vista interactiva.</p>
+          <p style="font-size: 0.8rem; color: var(--admin-text-muted); margin-bottom: 0.75rem;">Agrega fotos para el carrusel y lightbox interactivo.</p>
           <div id="projectGalleryList" style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.75rem;"></div>
           <div style="display: flex; gap: 0.5rem;">
-            <input type="text" id="pNewGalleryPhotoUrl" class="admin-input" placeholder="Pegar URL de foto o subir archivo">
-            <button type="button" class="btn-action-sm" id="btnAddGalleryPhoto">➕ Agregar a Galería</button>
+            <input type="text" id="pNewGalleryPhotoUrl" class="admin-input" placeholder="Pegar URL de foto o seleccionar">
+            <button type="button" class="btn-action-sm" id="btnPickGalleryMedia">Buscar en Medios</button>
+            <button type="button" class="btn-action-sm" id="btnAddGalleryPhoto">➕ Agregar</button>
           </div>
         </div>
 
@@ -432,7 +1133,6 @@ document.addEventListener('DOMContentLoaded', () => {
       </form>
     `;
 
-    // Renderizar lista de fotos en galería
     const galleryContainer = document.getElementById('projectGalleryList');
     function renderGalleryItems() {
       galleryContainer.innerHTML = '';
@@ -488,6 +1188,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
+    document.getElementById('btnPickGalleryMedia').addEventListener('click', () => {
+      openMediaPicker((selectedUrl) => {
+        currentGallery.push(selectedUrl);
+        renderGalleryItems();
+      });
+    });
+
     document.getElementById('btnPickCoverMedia').addEventListener('click', () => {
       openMediaPicker((selectedUrl) => {
         document.getElementById('pCover').value = selectedUrl;
@@ -517,19 +1224,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       try {
-        const url = isEdit ? `/api/admin/projects/${project.id}` : '/api/admin/projects';
-        const method = isEdit ? 'PUT' : 'POST';
-        const res = await fetch(url, {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Error al guardar');
-        }
-
+        await AdminStore.saveProject(payload, isEdit, project?.id);
         showToast(isEdit ? 'Proyecto actualizado con éxito' : 'Proyecto creado con éxito', 'success');
         renderProjects(document.getElementById('adminContentArea'));
         return true;
@@ -540,15 +1235,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function confirmDeleteProject(project) {
+  async function confirmDeleteProject(project) {
     if (confirm(`¿Estás seguro de que deseas eliminar definitivamente el proyecto "${project.title}"? Esta acción no se puede deshacer.`)) {
-      fetch(`/api/admin/projects/${project.id}`, { method: 'DELETE' })
-        .then(res => res.json())
-        .then(data => {
-          showToast('Proyecto eliminado', 'success');
-          renderProjects(document.getElementById('adminContentArea'));
-        })
-        .catch(err => showToast(err.message, 'error'));
+      await AdminStore.deleteProject(project.id);
+      showToast('Proyecto eliminado', 'success');
+      renderProjects(document.getElementById('adminContentArea'));
     }
   }
 
@@ -558,8 +1249,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function renderServices(container) {
     container.innerHTML = '<div style="text-align:center; padding:3rem;">Cargando servicios...</div>';
     try {
-      const res = await fetch('/api/admin/services');
-      const services = await res.json();
+      const services = await AdminStore.getServices();
 
       container.innerHTML = `
         <div class="admin-card">
@@ -587,7 +1277,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${services.map(s => `
                   <tr>
                     <td>
-                      <img src="${s.image || '/static/img/arquitectura.png'}" style="width: 60px; height: 42px; object-fit: cover; border-radius: 4px;">
+                      <img src="${s.image || 'static/img/arquitectura.png'}" style="width: 60px; height: 42px; object-fit: cover; border-radius: 4px;">
                     </td>
                     <td><strong>${escapeHtml(s.title)}</strong></td>
                     <td style="max-width: 320px; font-size: 0.85rem; color: var(--admin-text-muted);">${escapeHtml(s.description || '')}</td>
@@ -615,14 +1305,12 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       container.querySelectorAll('.btn-delete-service').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
           const s = services.find(item => item.id === btn.dataset.id);
           if (s && confirm(`¿Eliminar servicio "${s.title}"?`)) {
-            fetch(`/api/admin/services/${s.id}`, { method: 'DELETE' })
-              .then(() => {
-                showToast('Servicio eliminado', 'success');
-                renderServices(container);
-              });
+            await AdminStore.deleteService(s.id);
+            showToast('Servicio eliminado', 'success');
+            renderServices(container);
           }
         });
       });
@@ -650,7 +1338,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="admin-form-group">
           <label class="admin-form-label">Imagen o Icono (URL)</label>
           <div style="display: flex; gap: 0.5rem;">
-            <input type="text" id="sImage" class="admin-input" value="${escapeHtml(service?.image || '/static/img/arquitectura.png')}">
+            <input type="text" id="sImage" class="admin-input" value="${escapeHtml(service?.image || 'static/img/arquitectura.png')}">
             <button type="button" class="btn-action-sm" id="btnPickServiceMedia">Elegir de Medios</button>
           </div>
         </div>
@@ -686,22 +1374,10 @@ document.addEventListener('DOMContentLoaded', () => {
         order: Number(document.getElementById('sOrder').value) || 1
       };
 
-      const url = isEdit ? `/api/admin/services/${service.id}` : '/api/admin/services';
-      const method = isEdit ? 'PUT' : 'POST';
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
-        showToast('Servicio guardado', 'success');
-        renderServices(document.getElementById('adminContentArea'));
-        return true;
-      } else {
-        showToast('Error al guardar servicio', 'error');
-        return false;
-      }
+      await AdminStore.saveService(payload, isEdit, service?.id);
+      showToast('Servicio guardado con éxito', 'success');
+      renderServices(document.getElementById('adminContentArea'));
+      return true;
     });
   }
 
@@ -711,8 +1387,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function renderProperties(container) {
     container.innerHTML = '<div style="text-align:center; padding:3rem;">Cargando propiedades...</div>';
     try {
-      const res = await fetch('/api/admin/properties');
-      const properties = await res.json();
+      const properties = await AdminStore.getProperties();
 
       container.innerHTML = `
         <div class="admin-card">
@@ -740,7 +1415,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${properties.map(p => `
                   <tr>
                     <td>
-                      <img src="${p.image || '/static/img/Vent03.png'}" style="width: 60px; height: 42px; object-fit: cover; border-radius: 4px;">
+                      <img src="${p.image || 'static/img/Vent03.png'}" style="width: 60px; height: 42px; object-fit: cover; border-radius: 4px;">
                     </td>
                     <td>
                       <strong>${escapeHtml(p.title)}</strong>
@@ -771,14 +1446,12 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       container.querySelectorAll('.btn-delete-prop').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
           const p = properties.find(item => item.id === btn.dataset.id);
           if (p && confirm(`¿Eliminar propiedad "${p.title}"?`)) {
-            fetch(`/api/admin/properties/${p.id}`, { method: 'DELETE' })
-              .then(() => {
-                showToast('Propiedad eliminada', 'success');
-                renderProperties(container);
-              });
+            await AdminStore.deleteProperty(p.id);
+            showToast('Propiedad eliminada', 'success');
+            renderProperties(container);
           }
         });
       });
@@ -828,7 +1501,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="admin-form-group">
           <label class="admin-form-label">Foto de Portada</label>
           <div style="display: flex; gap: 0.5rem;">
-            <input type="text" id="prImage" class="admin-input" value="${escapeHtml(property?.image || '/static/img/Vent03.png')}">
+            <input type="text" id="prImage" class="admin-input" value="${escapeHtml(property?.image || 'static/img/Vent03.png')}">
             <button type="button" class="btn-action-sm" id="btnPickPropertyMedia">Elegir de Medios</button>
           </div>
         </div>
@@ -868,22 +1541,10 @@ document.addEventListener('DOMContentLoaded', () => {
         order: Number(document.getElementById('prOrder').value) || 1
       };
 
-      const url = isEdit ? `/api/admin/properties/${property.id}` : '/api/admin/properties';
-      const method = isEdit ? 'PUT' : 'POST';
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
-        showToast('Propiedad guardada', 'success');
-        renderProperties(document.getElementById('adminContentArea'));
-        return true;
-      } else {
-        showToast('Error al guardar propiedad', 'error');
-        return false;
-      }
+      await AdminStore.saveProperty(payload, isEdit, property?.id);
+      showToast('Propiedad guardada con éxito', 'success');
+      renderProperties(document.getElementById('adminContentArea'));
+      return true;
     });
   }
 
@@ -893,8 +1554,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function renderPages(container) {
     container.innerHTML = '<div style="text-align:center; padding:3rem;">Cargando páginas...</div>';
     try {
-      const res = await fetch('/api/admin/pages');
-      const pages = await res.json();
+      const pages = await AdminStore.getPages();
 
       container.innerHTML = `
         <div class="admin-card">
@@ -924,12 +1584,12 @@ document.addEventListener('DOMContentLoaded', () => {
                   <tr>
                     <td><strong>${escapeHtml(pg.navTitle || pg.title)}</strong></td>
                     <td>${escapeHtml(pg.title)}</td>
-                    <td><code>/p/${escapeHtml(pg.slug)}</code></td>
+                    <td><code>pagina.html?slug=${escapeHtml(pg.slug)}</code></td>
                     <td>${pg.inMenu ? '<span class="badge-status badge-published">Visible en Menú</span>' : '<span class="badge-status badge-draft">Solo Enlace</span>'}</td>
                     <td>${pg.published ? '<span class="badge-status badge-published">Publicada</span>' : '<span class="badge-status badge-draft">Borrador</span>'}</td>
                     <td>${pg.order || 0}</td>
                     <td style="text-align: right;">
-                      <a href="/p/${pg.slug}" target="_blank" class="btn-action-sm">👁️ Ver</a>
+                      <a href="pagina.html?slug=${pg.slug}" target="_blank" class="btn-action-sm">👁️ Ver</a>
                       <button class="btn-action-sm btn-edit-page" data-id="${pg.id}">✏️ Editar Bloques</button>
                       <button class="btn-action-sm btn-action-danger btn-delete-page" data-id="${pg.id}">🗑️</button>
                     </td>
@@ -951,14 +1611,12 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       container.querySelectorAll('.btn-delete-page').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
           const pg = pages.find(item => item.id === btn.dataset.id);
           if (pg && confirm(`¿Eliminar página "${pg.title}"?`)) {
-            fetch(`/api/admin/pages/${pg.id}`, { method: 'DELETE' })
-              .then(() => {
-                showToast('Página eliminada', 'success');
-                renderPages(container);
-              });
+            await AdminStore.deletePage(pg.id);
+            showToast('Página eliminada', 'success');
+            renderPages(container);
           }
         });
       });
@@ -1058,14 +1716,14 @@ document.addEventListener('DOMContentLoaded', () => {
           `;
         } else if (block.type === 'image') {
           fieldsHtml = `
-            <input type="text" class="admin-input block-field" data-key="url" placeholder="URL de la imagen (/static/img/... o /uploads/...)" value="${escapeHtml(block.url || '')}">
+            <input type="text" class="admin-input block-field" data-key="url" placeholder="URL de la imagen (static/img/... o data:...)" value="${escapeHtml(block.url || '')}">
             <input type="text" class="admin-input block-field" style="margin-top:0.5rem;" data-key="caption" placeholder="Epígrafe o descripción al pie de la foto" value="${escapeHtml(block.caption || '')}">
           `;
         } else if (block.type === 'button') {
           fieldsHtml = `
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
               <input type="text" class="admin-input block-field" data-key="text" placeholder="Texto del botón (ej: Iniciar Consulta)" value="${escapeHtml(block.text || '')}">
-              <input type="text" class="admin-input block-field" data-key="url" placeholder="Enlace de destino (ej: /#contacto)" value="${escapeHtml(block.url || '')}">
+              <input type="text" class="admin-input block-field" data-key="url" placeholder="Enlace de destino (ej: index.html#contacto)" value="${escapeHtml(block.url || '')}">
             </div>
           `;
         }
@@ -1082,7 +1740,6 @@ document.addEventListener('DOMContentLoaded', () => {
           <div>${fieldsHtml}</div>
         `;
 
-        // Eventos de cambios en campos
         item.querySelectorAll('.block-field').forEach(field => {
           field.addEventListener('input', () => {
             block[field.dataset.key] = field.value;
@@ -1138,7 +1795,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const payload = {
         title,
         navTitle: document.getElementById('pgNavTitle').value.trim() || title,
-        slug: document.getElementById('pgSlug').value.trim() || undefined,
+        slug: document.getElementById('pgSlug').value.trim() || title.toLowerCase().replace(/[^a-z0-9]/g, '-'),
         seoTitle: document.getElementById('pgSeoTitle').value.trim(),
         inMenu: document.getElementById('pgInMenu').checked,
         published: document.getElementById('pgPublished').checked,
@@ -1146,23 +1803,10 @@ document.addEventListener('DOMContentLoaded', () => {
         blocks: currentBlocks
       };
 
-      const url = isEdit ? `/api/admin/pages/${page.id}` : '/api/admin/pages';
-      const method = isEdit ? 'PUT' : 'POST';
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
-        showToast('Página guardada exitosamente', 'success');
-        renderPages(document.getElementById('adminContentArea'));
-        return true;
-      } else {
-        const d = await res.json();
-        showToast(d.error || 'Error al guardar página', 'error');
-        return false;
-      }
+      await AdminStore.savePage(payload, isEdit, page?.id);
+      showToast('Página guardada exitosamente', 'success');
+      renderPages(document.getElementById('adminContentArea'));
+      return true;
     });
   }
 
@@ -1172,8 +1816,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function renderSettings(container) {
     container.innerHTML = '<div style="text-align:center; padding:3rem;">Cargando configuración...</div>';
     try {
-      const res = await fetch('/api/admin/settings');
-      const s = await res.json();
+      const s = await AdminStore.getSettings();
 
       container.innerHTML = `
         <div class="admin-card">
@@ -1304,20 +1947,8 @@ document.addEventListener('DOMContentLoaded', () => {
           seoDescription: document.getElementById('setSeoDesc').value.trim()
         };
 
-        try {
-          const saveRes = await fetch('/api/admin/settings', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-          if (saveRes.ok) {
-            showToast('Configuración guardada correctamente. Los cambios ya son visibles en la web.', 'success');
-          } else {
-            showToast('Error al guardar configuración', 'error');
-          }
-        } catch (err) {
-          showToast(err.message, 'error');
-        }
+        await AdminStore.saveSettings(payload);
+        showToast('Configuración guardada correctamente.', 'success');
       });
 
     } catch (err) {
@@ -1331,8 +1962,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function renderMedia(container) {
     container.innerHTML = '<div style="text-align:center; padding:3rem;">Cargando archivos multimedia...</div>';
     try {
-      const res = await fetch('/api/admin/media');
-      const media = await res.json();
+      const media = await AdminStore.getMedia();
       cachedMedia = media;
 
       container.innerHTML = `
@@ -1353,7 +1983,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
 
           <div id="uploadProgress" style="display: none; padding: 1rem; background: #FFF8E1; border-radius: 8px; margin-bottom: 1.5rem; font-weight: 600;">
-            Subiendo archivos al servidor... Por favor espera.
+            Procesando y guardando archivos... Por favor espera.
           </div>
 
           <div class="media-grid" id="mediaGrid">
@@ -1391,6 +2021,8 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
           handleUploadFiles(e.dataTransfer.files);
         }
@@ -1404,23 +2036,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       async function handleUploadFiles(files) {
         uploadProgress.style.display = 'block';
-        const formData = new FormData();
-        for (let i = 0; i < files.length; i++) {
-          formData.append('files', files[i]);
-        }
-
         try {
-          const uploadRes = await fetch('/api/admin/upload', {
-            method: 'POST',
-            body: formData
-          });
-          const resData = await uploadRes.json();
-          if (uploadRes.ok) {
-            showToast(`${resData.files.length} archivo(s) subido(s) con éxito`, 'success');
-            renderMedia(container);
-          } else {
-            showToast(resData.error || 'Error al subir archivos', 'error');
-          }
+          const added = await AdminStore.uploadMediaFiles(files);
+          showToast(`${added.length} archivo(s) subido(s) con éxito`, 'success');
+          renderMedia(container);
         } catch (err) {
           showToast(err.message, 'error');
         } finally {
@@ -1437,13 +2056,11 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       container.querySelectorAll('.btn-delete-media').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
           if (confirm('¿Eliminar este archivo multimedia?')) {
-            fetch(`/api/admin/media/${btn.dataset.id}`, { method: 'DELETE' })
-              .then(() => {
-                showToast('Archivo eliminado', 'success');
-                renderMedia(container);
-              });
+            await AdminStore.deleteMedia(btn.dataset.id);
+            showToast('Archivo eliminado', 'success');
+            renderMedia(container);
           }
         });
       });
@@ -1459,8 +2076,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function renderInquiries(container) {
     container.innerHTML = '<div style="text-align:center; padding:3rem;">Cargando consultas...</div>';
     try {
-      const res = await fetch('/api/admin/inquiries');
-      const inquiries = await res.json();
+      const inquiries = await AdminStore.getInquiries();
 
       container.innerHTML = `
         <div class="admin-card">
@@ -1485,7 +2101,7 @@ document.addEventListener('DOMContentLoaded', () => {
               </thead>
               <tbody>
                 ${inquiries.length > 0 ? inquiries.map(inq => {
-                  const dateStr = new Date(inq.createdAt).toLocaleString();
+                  const dateStr = new Date(inq.createdAt || Date.now()).toLocaleString();
                   const cleanPhone = inq.phone ? inq.phone.replace(/[^0-9]/g, '') : '';
                   const waLink = cleanPhone ? `https://wa.me/${cleanPhone}` : '';
                   return `
@@ -1519,21 +2135,18 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
 
       container.querySelectorAll('.btn-toggle-read').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
           const currentRead = btn.dataset.read === 'true';
-          fetch(`/api/admin/inquiries/${btn.dataset.id}/read`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ read: !currentRead })
-          }).then(() => renderInquiries(container));
+          await AdminStore.markInquiryRead(btn.dataset.id, !currentRead);
+          renderInquiries(container);
         });
       });
 
       container.querySelectorAll('.btn-delete-inq').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
           if (confirm('¿Eliminar esta consulta?')) {
-            fetch(`/api/admin/inquiries/${btn.dataset.id}`, { method: 'DELETE' })
-              .then(() => renderInquiries(container));
+            await AdminStore.deleteInquiry(btn.dataset.id);
+            renderInquiries(container);
           }
         });
       });
@@ -1586,18 +2199,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       try {
-        const res = await fetch('/api/auth/change-password', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ currentPassword, newPassword })
-        });
-        const data = await res.json();
-        if (res.ok && data.success) {
-          showToast('Contraseña cambiada con éxito', 'success');
-          document.getElementById('changePasswordForm').reset();
-        } else {
-          showToast(data.error || 'Error al cambiar contraseña', 'error');
-        }
+        await AdminStore.changePassword(currentPassword, newPassword);
+        showToast('Contraseña cambiada con éxito', 'success');
+        document.getElementById('changePasswordForm').reset();
       } catch (err) {
         showToast(err.message, 'error');
       }
@@ -1646,50 +2250,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 4000);
   }
 
-  function openMediaPicker(onSelect) {
-    fetch('/api/admin/media')
-      .then(res => res.json())
-      .then(mediaItems => {
-        const pickerHtml = `
-          <div style="max-height: 400px; overflow-y: auto;">
-            <p style="font-size: 0.85rem; color: var(--admin-text-muted); margin-bottom: 1rem;">Haz clic en una imagen para seleccionarla:</p>
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.75rem;">
-              ${mediaItems.map(item => `
-                <div class="picker-item" data-url="${item.url}" style="border: 2px solid var(--admin-border); border-radius: 6px; overflow: hidden; cursor: pointer; aspect-ratio: 1; transition: border-color 0.2s;">
-                  <img src="${item.url}" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-              `).join('')}
+  async function openMediaPicker(onSelect) {
+    const mediaItems = await AdminStore.getMedia();
+    const pickerHtml = `
+      <div style="max-height: 400px; overflow-y: auto;">
+        <p style="font-size: 0.85rem; color: var(--admin-text-muted); margin-bottom: 1rem;">Haz clic en una imagen para seleccionarla:</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.75rem;">
+          ${mediaItems.map(item => `
+            <div class="picker-item" data-url="${item.url}" style="border: 2px solid var(--admin-border); border-radius: 6px; overflow: hidden; cursor: pointer; aspect-ratio: 1; transition: border-color 0.2s;">
+              <img src="${item.url}" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = `
+      <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 2rem;">
+        <div style="background: white; border-radius: 12px; width: 100%; max-width: 600px; padding: 2rem;">
+          <h4 style="margin-bottom: 1rem; font-size: 1.2rem;">Seleccionar de la Biblioteca</h4>
+          ${pickerHtml}
+          <div style="text-align: right; margin-top: 1.5rem;">
+            <button type="button" class="btn-action-sm btn-close-picker">Cancelar</button>
           </div>
-        `;
+        </div>
+      </div>
+    `;
+    document.body.appendChild(tempDiv);
 
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = `
-          <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 2rem;">
-            <div style="background: white; border-radius: 12px; width: 100%; max-width: 600px; padding: 2rem;">
-              <h4 style="margin-bottom: 1rem; font-size: 1.2rem;">Seleccionar de la Biblioteca</h4>
-              ${pickerHtml}
-              <div style="text-align: right; margin-top: 1.5rem;">
-                <button type="button" class="btn-action-sm btn-close-picker">Cancelar</button>
-              </div>
-            </div>
-          </div>
-        `;
-        document.body.appendChild(tempDiv);
-
-        tempDiv.querySelectorAll('.picker-item').forEach(el => {
-          el.addEventListener('click', () => {
-            onSelect(el.dataset.url);
-            tempDiv.remove();
-          });
-        });
-
-        tempDiv.querySelector('.btn-close-picker').addEventListener('click', () => tempDiv.remove());
+    tempDiv.querySelectorAll('.picker-item').forEach(el => {
+      el.addEventListener('click', () => {
+        onSelect(el.dataset.url);
+        tempDiv.remove();
       });
-  }
+    });
 
-  function downloadBackup() {
-    window.location.href = '/api/admin/backup';
+    tempDiv.querySelector('.btn-close-picker').addEventListener('click', () => tempDiv.remove());
   }
 
   function escapeHtml(str) {

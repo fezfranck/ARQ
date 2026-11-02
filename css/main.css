@@ -1,8 +1,9 @@
 /* ==========================================================================
    ESTUDIO ANABELLA ZALAZAR - SISTEMA DE DISEÑO ARQUITECTÓNICO EDITORIAL
+   Tipografía: Inter (Moderna, Recta, Sólida, Seria) + Plus Jakarta Sans
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 
 :root {
   /* Paleta cromática arquitectónica */
@@ -26,7 +27,7 @@
   --border-dark: rgba(255, 255, 255, 0.12);
 
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Syne', sans-serif;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.06);
@@ -80,12 +81,13 @@ button, input, textarea, select {
   font-size: inherit;
 }
 
-/* Tipografía de Títulos */
+/* Tipografía de Títulos: Moderna, Recta, Sobria y Arquitectónica */
 h1, h2, h3, h4, .font-display {
   font-family: var(--font-display);
   font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  text-rendering: optimizeLegibility;
 }
 
 .container {
@@ -149,15 +151,17 @@ h1, h2, h3, h4, .font-display {
   color: var(--text-light);
   font-family: var(--font-display);
   font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .brand-subtitle {
   color: var(--text-light-muted);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
+  font-weight: 600;
 }
 
 .nav-menu {
@@ -276,7 +280,7 @@ h1, h2, h3, h4, .font-display {
 .hero-content {
   position: relative;
   z-index: 2;
-  max-width: 980px;
+  max-width: 1050px;
   text-align: center;
   margin: 0 auto;
 }
@@ -290,7 +294,9 @@ h1, h2, h3, h4, .font-display {
   padding: 0.5rem 1.25rem;
   border-radius: var(--radius-full);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  font-family: var(--font-display);
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
   color: #F1EFEA;
@@ -306,19 +312,21 @@ h1, h2, h3, h4, .font-display {
 }
 
 .hero-title {
+  font-family: var(--font-display);
   font-size: clamp(2.8rem, 6.5vw, 5.2rem);
   font-weight: 800;
   line-height: 1.05;
+  letter-spacing: -0.035em;
   margin-bottom: 1.75rem;
   color: var(--text-light);
   text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
 }
 
 .hero-subtitle {
-  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
   color: rgba(255, 255, 255, 0.88);
   font-weight: 300;
-  max-width: 720px;
+  max-width: 740px;
   margin: 0 auto 3rem;
   line-height: 1.6;
 }
@@ -340,7 +348,7 @@ h1, h2, h3, h4, .font-display {
   padding: 1.1rem 2.5rem;
   border-radius: var(--radius-full);
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.98rem;
   letter-spacing: 0.5px;
   box-shadow: 0 10px 25px rgba(184, 74, 40, 0.35);
 }
@@ -361,7 +369,7 @@ h1, h2, h3, h4, .font-display {
   padding: 1.1rem 2.2rem;
   border-radius: var(--radius-full);
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.98rem;
   border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
@@ -386,18 +394,20 @@ h1, h2, h3, h4, .font-display {
 
 .hero-stat-number {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-size: clamp(2.2rem, 3.8vw, 3rem);
   font-weight: 800;
+  letter-spacing: -0.03em;
   color: var(--text-light);
   line-height: 1;
   margin-bottom: 0.4rem;
 }
 
 .hero-stat-label {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--text-light-muted);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
+  font-weight: 600;
 }
 
 /* ==========================================================================
@@ -409,28 +419,33 @@ section {
 
 .section-header {
   text-align: center;
-  max-width: 700px;
+  max-width: 720px;
   margin: 0 auto 4.5rem;
 }
 
 .section-tag {
   display: inline-block;
-  color: var(--accent-terracotta);
-  font-size: 0.85rem;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2.5px;
+  color: var(--accent-terracotta);
   margin-bottom: 0.75rem;
 }
 
 .section-title {
-  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 4.2vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
   color: var(--text-primary);
   margin-bottom: 1.25rem;
 }
 
 .section-desc {
-  font-size: 1.1rem;
+  font-size: 1.08rem;
   color: var(--text-secondary);
   line-height: 1.7;
 }
@@ -487,19 +502,21 @@ section {
 
 .about-exp-number {
   font-family: var(--font-display);
-  font-size: 2.5rem;
+  font-size: 2.6rem;
   font-weight: 800;
+  letter-spacing: -0.03em;
   color: var(--accent-terracotta);
   line-height: 1;
 }
 
 .about-exp-text {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-top: 0.4rem;
   text-align: center;
   color: var(--text-light-muted);
+  font-weight: 600;
 }
 
 .about-content-text {
@@ -509,17 +526,20 @@ section {
 }
 
 .about-architect-name {
-  font-size: clamp(2rem, 3.5vw, 2.6rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 3.8vw, 2.8rem);
   color: var(--text-primary);
   margin-bottom: 0.25rem;
+  letter-spacing: -0.03em;
+  font-weight: 700;
 }
 
 .about-architect-degree {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--accent-terracotta);
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
 }
 
 .about-p {
@@ -544,8 +564,10 @@ section {
 }
 
 .about-value-title {
+  font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
   color: var(--text-primary);
   margin-bottom: 0.4rem;
 }
@@ -577,8 +599,9 @@ section {
   border: 1px solid var(--border-light);
   padding: 0.65rem 1.4rem;
   border-radius: var(--radius-full);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
+  letter-spacing: 0.5px;
   cursor: pointer;
   transition: var(--transition);
 }
@@ -663,7 +686,10 @@ section {
 }
 
 .project-title {
+  font-family: var(--font-display);
   font-size: 1.45rem;
+  letter-spacing: -0.025em;
+  font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 0.75rem;
   transition: color 0.3s ease;
@@ -746,7 +772,10 @@ section {
 }
 
 .service-title {
+  font-family: var(--font-display);
   font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 0.75rem;
 }
@@ -840,12 +869,16 @@ section {
   font-family: var(--font-display);
   font-size: 1.6rem;
   font-weight: 800;
+  letter-spacing: -0.02em;
   color: var(--accent-terracotta);
   margin-bottom: 0.5rem;
 }
 
 .property-title {
+  font-family: var(--font-display);
   font-size: 1.45rem;
+  letter-spacing: -0.02em;
+  font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 0.85rem;
 }
@@ -906,7 +939,10 @@ section {
 }
 
 .contact-info-title {
-  font-size: 2rem;
+  font-family: var(--font-display);
+  font-size: 2.1rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
   margin-bottom: 1.25rem;
 }
 
@@ -1052,6 +1088,7 @@ section {
   font-family: var(--font-display);
   font-size: 1.15rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--text-light);
   margin-bottom: 1.5rem;
 }

@@ -41,19 +41,65 @@ document.addEventListener('DOMContentLoaded', () => {
   loadSiteData();
 
   async function loadSiteData() {
+    // 1. Verificar si hay cambios guardados localmente desde el Panel Admin
+    const localDb = localStorage.getItem('az_db_cache');
+    if (localDb) {
+      try {
+        const parsed = JSON.parse(localDb);
+        applyDataFromDb(parsed);
+      } catch (e) {}
+    }
+
+    // 2. Intentar API en vivo del backend (Node.js)
     try {
       const res = await fetch('/api/public/initial-data');
-      if (!res.ok) throw new Error('Error al cargar datos del sitio');
-      initialData = await res.json();
-      
-      hydrateSettings(initialData.settings);
-      hydrateNavigation(initialData.navPages);
-      hydrateProjects(initialData.projects, initialData.categories);
-      hydrateServices(initialData.services);
-      hydrateProperties(initialData.properties);
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
+        initialData = await res.json();
+        hydrateAll(initialData);
+        return;
+      }
+    } catch (err) {}
+
+    // 3. Respaldo estático: Cargar data/db.json (para GitHub Pages)
+    try {
+      let staticRes = await fetch('data/db.json');
+      if (!staticRes.ok) {
+        staticRes = await fetch('/data/db.json');
+      }
+      if (staticRes.ok) {
+        const parsed = await staticRes.json();
+        applyDataFromDb(parsed);
+      }
     } catch (err) {
       console.warn('Cargando con contenido estático predeterminado:', err);
     }
+  }
+
+  function applyDataFromDb(db) {
+    if (!db) return;
+    initialData = {
+      settings: db.settings,
+      projects: (db.projects || []).filter(p => p.published),
+      categories: Array.from(new Set((db.projects || []).filter(p => p.published).map(p => p.category).filter(Boolean))),
+      services: (db.services || []).filter(s => s.published),
+      properties: (db.properties || []).filter(p => p.published),
+      navPages: (db.pages || []).filter(p => p.published && p.inMenu).map(p => ({
+        slug: p.slug,
+        title: p.navTitle || p.title,
+        order: p.order
+      }))
+    };
+    hydrateAll(initialData);
+  }
+
+  function hydrateAll(data) {
+    if (!data) return;
+    hydrateSettings(data.settings);
+    hydrateNavigation(data.navPages);
+    hydrateProjects(data.projects, data.categories);
+    hydrateServices(data.services);
+    hydrateProperties(data.properties);
   }
 
   function hydrateSettings(settings) {
